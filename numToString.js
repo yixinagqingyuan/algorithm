@@ -26,6 +26,7 @@ function numToString1(num) {
   const string = String(num)
   for (let i = string.length - 1; i >= 0; i--) {
     str = string[i] + str
+    // 这利用取余来解决问题，不是三的整数倍，添加逗号完事
     if (i % 3 == 1) {
       str = ',' + str
     }

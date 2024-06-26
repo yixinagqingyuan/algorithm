@@ -67,6 +67,10 @@ const decodeString = (str) => {
       // }
       // 之前的逻辑有问题，这里我们还需要照顾 a[b]c[d] 的情况
       // 所以还需要变换一下
+      // 这里是有技巧的，什么情况呢
+      // 因为他层级的本质就是将当前的值数字之后的值，解耦之后在和前头拼接
+      // 而恰巧的是，我们这种解耦，我在之前给他推入数组中，导致当遍历拼接完成后
+      // 恰巧在多层嵌套中， 作为上一个基础值，从而完美解决，多层问题，单层嵌套问题
       letterStr = letter + letterStr.repeat(Number(num))
       console.log(letterStr)
       // 当遍历之后还要给他赋值出去 为了方便下一次使用
@@ -82,4 +86,4 @@ const decodeString = (str) => {
   console.log(letterStr)
 }
 
-decodeString('3[a]2[b]')
+decodeString('3[a]2[bc2[d3[e]]]')

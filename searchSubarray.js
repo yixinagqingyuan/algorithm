@@ -19,7 +19,7 @@ const findThreeLargestIndices = (arr) => {
   console.log(max, max1, max2)
 }
 
-findThreeLargestIndices([1, 3, 2, 1, 9])
+// findThreeLargestIndices([1, 3, 2, 1, 9])
 //  还有一个有意思的就是找到单个的三个最大的子数组和当前这一题有异曲同工
 // 我们先来看这题
 
@@ -69,49 +69,70 @@ const singleQuerySearch = (arr) => {
   // 然后分别循环三次来找结果集
   for (let i = 0; i < 3; i++) {
     // 每次搞一个最大的空值
-    let max = 0
-    let arrMax = result[length - 1]
-    for (let i = 0; i < arr.length; i++) {
-      if (arrMax) {
-        if (arr[i] > arr[max] && arr[i] < arr[arrMax]) {
-          max = i
-        }
-      } else {
-        if (arr[i] > arr[0]) {
-          max = i
-        }
+    let max = -Infinity
+    let index = -1
+    for (let j = 0; j < arr.length; j++) {
+      if (arr[j] > max) {
+        max = arr[j]
+        index = j
       }
     }
-    result.push(max)
+    arr[index] = -Infinity
+    result.push(index)
   }
+  console.log(result)
 }
 
-// singleQuerySearch([1, -3, 2, 1, -1])
+singleQuerySearch([1, -3, 2, 1, -1])
 // 这个函数是有漏洞的,因为如果前头大 那么就会有问题
 
-// 有了上一题打底
+// 有了上一题打底我们在返回头去看这个问题， 就很简单了，一切问题迎刃而解
 //有一个数组 [[1, 2, 3], [4, 5, 6], [-1, 12, 13], [6, 18, 0], [5, 5, 5], [6, 9, 3]],找出其中和最大的三个子数组
 // 开始内卷，找出这题三个最大的子数组，这不是跟之前一样吗，
 // 所以这一题需要求和
 const searchSubarray = (arr) => {
-  // 我们首先国际惯例，指定要搞一个结果集
-  const first = 0
-  const second = 0
-  const third = 0
-  // 然后我们遍历数组
-  for (var i = 0; i < arr.length; i++) {
-    // 然后我们求和
-    const num = arr[i][0] + arr[i][1] + arr[i][2]
-    if (num > first) {
-      first = num
+  // // 我们首先国际惯例，指定要搞一个结果集
+  // const first = 0
+  // const second = 0
+  // const third = 0
+  // // 然后我们遍历数组
+  // for (var i = 0; i < arr.length; i++) {
+  //   // 然后我们求和
+  //   const num = arr[i][0] + arr[i][1] + arr[i][2]
+  //   if (num > first) {
+  //     first = num
+  //   }
+  // }
+  // 首先还是要一个结果集
+  const result = []
+  // 然后我们再遍历数组
+  for (let i = 0; i < 3; i++) {
+    // 然后我们找一个最小的值
+    let max = -Infinity
+    let itme = -1
+    let index = -1
+    for (let j = 0; j < arr.length; j++) {
+      // 之前的如果被选中，那么就需要处理一下
+      // 相当于给他一个占位符
+      if (arr[j] != -Infinity) {
+        const num = arr[j][0] + arr[j][1] + arr[j][2]
+        if (num > max) {
+          max = num
+          itme = arr[j]
+          index = j
+        }
+      }
     }
+    result.push(itme)
+    arr[index] = -Infinity
   }
+  console.log(result)
 }
-// searchSubarray([
-//   [1, 2, 3],
-//   [4, 5, 6],
-//   [-1, 12, 13],
-//   [6, 18, 0],
-//   [5, 5, 5],
-//   [6, 9, 3],
-// ])
+searchSubarray([
+  [1, 2, 3],
+  [4, 5, 6],
+  [-1, 12, 13],
+  [6, 18, 0],
+  [5, 5, 5],
+  [6, 9, 3],
+])

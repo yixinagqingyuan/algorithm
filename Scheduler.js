@@ -95,7 +95,20 @@
 //     }
 //   }
 // }
+// 测试函数执行顺序
+function testtimeout(time) {
+  return new Promise((resolve) => {
+    console.log(time)
+    setTimeout(resolve, time)
+  })
+}
 
+function testaddTask(time, order) {
+  var a = () => timeout(time).then(() => console.log(order))
+  console.log(a)
+}
+
+testaddTask(1000, 1)
 // const timeout = (time) =>
 //   new Promise((resolve) => {
 //     setTimeout(resolve, time)
@@ -114,43 +127,96 @@
 
 // 打印顺序是：2 3 1 4
 
-function Scheduler() {
-  this.list = []
-  this.add = function (promiseCreator) {
+// function Scheduler() {
+//   this.list = []
+//   this.add = function (promiseCreator) {
+//     this.list.push(promiseCreator)
+//   }
+
+//   this.maxCount = 2
+
+//   var tempRunIndex = 0
+
+//   this.taskStart = function () {
+//     for (var i = 0; i < this.maxCount; i++) {
+//       request.bind(this)()
+//     }
+//   }
+
+//   function request() {
+//     if (!this.list || !this.list.length || tempRunIndex >= this.maxCount) {
+//       return
+//     }
+
+//     tempRunIndex++
+//     this.list
+//       .shift()()
+//       .then(() => {
+//         tempRunIndex--
+//         request.bind(this)()
+//       })
+//   }
+// }
+
+// function timeout(time) {
+//   return new Promise((resolve) => {
+//     console.log(time)
+//     setTimeout(resolve, time)
+//   })
+// }
+
+// var scheduler = new Scheduler()
+
+// function addTask(time, order) {
+//   scheduler.add(() => timeout(time).then(() => console.log(order)))
+// }
+
+// addTask(1000, 1)
+// addTask(500, 2)
+// addTask(300, 3)
+// addTask(400, 4)
+
+// scheduler.taskStart()
+
+// 自己尝试重写一遍本质上还是利用 for 循环处理，只是他真实的题意是传入一个函数
+// 所以我们还是要用for 循环结果问题，只不过打印的结果，要在他传入的结果里头
+// 要用闭包体现
+class Scheduler {
+  constructor() {
+    // 创建list
+    this.list = []
+    // 允许执行的最大并行
+    this.max = 2
+  }
+  add(promiseCreator) {
+    // add 其实就是为了将代码放入队列里头
     this.list.push(promiseCreator)
   }
-
-  this.maxCount = 2
-
-  var tempRunIndex = 0
-
-  this.taskStart = function () {
-    for (var i = 0; i < this.maxCount; i++) {
-      request.bind(this)()
+  // 然后需要执行一下
+  run() {
+    // 这里创建一个请求的递归相当于是，然后 for 循环重复的执行这个递归
+    const _request = () => {
+      if (this.list.length) {
+        const task = this.list.shift()
+        // 这个 task 本质上是个 return 出来的函数，所以我们应该这样
+        // 先执行下这个函数，然后这个函数就是个 Promise 我们在给他套上一层 then
+        task().then((res) => {
+          // 此时发现这个任务完成了，就执行下一个任务
+          _request()
+        })
+      }
     }
-  }
-
-  function request() {
-    if (!this.list || !this.list.length || tempRunIndex >= this.maxCount) {
-      return
+    // 然后 for 循环执行任务,让并行的几个任务同时跑
+    for (let i = 0; i < this.max; i++) {
+      _request()
     }
-
-    tempRunIndex++
-    this.list
-      .shift()()
-      .then(() => {
-        tempRunIndex--
-        request.bind(this)()
-      })
   }
 }
-
 function timeout(time) {
   return new Promise((resolve) => {
     setTimeout(resolve, time)
   })
 }
-
 var scheduler = new Scheduler()
 
 function addTask(time, order) {
@@ -161,5 +227,4 @@ addTask(1000, 1)
 addTask(500, 2)
 addTask(300, 3)
 addTask(400, 4)
-
-scheduler.taskStart()
+scheduler.run()

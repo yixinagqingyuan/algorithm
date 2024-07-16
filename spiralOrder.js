@@ -54,11 +54,16 @@ const spiralOrder = (arr) => {
       res.push(arr[i][left])
     }
     // 一遍便利完了，就要给他缩小范围
-    left++
-    right--
-    top++
-    bottom--
+    if (right > left) {
+      left++
+      right--
+    }
+    if (bottom > top) {
+      top++
+      bottom--
+    }
   }
+
   console.log(res)
 }
 spiralOrder([[1, 2, 3, 4]])

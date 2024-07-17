@@ -68,7 +68,7 @@ const removeDuplicates2 = (str, k) => {
     // 每次遍历，就会取前一个，这样就能满足当这个删除之后，后头的和前头的又续上了
     const prve = stack.pop()
     // 当 prve没有，或者，prve不等于当前的值,所以我们取一个标本，0 的位置
-    if (!prve || prve[0] == s) {
+    if (!prve || prve[0] !== s) {
       // 现在我取出来了，那么现在我要在存进去，因为都不一样了
       stack.push(prve)
       stack.push(s)

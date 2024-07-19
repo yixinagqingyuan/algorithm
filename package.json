@@ -9,6 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@tegfe/wmb-node": "^1.0.2",
     "crypto": "^1.0.1"
   }
 }

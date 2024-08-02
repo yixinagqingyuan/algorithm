@@ -11,7 +11,47 @@ grid = [
   [0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0],
   [0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0],
 ]
-
+// 这一题我们用深度优先遍历，此时深度优先遍历和广度优先遍历的区别就是
+// dfs是一竿子到底，bfs 是画圈遍历
+// 所以我们这一次为了简单，咱就一竿子到底，dfs
 function maxAreaOfIsland(grid) {
   // 求岛屿的最大面积
+  // 所谓一竿子到底，就是，我们遍历，遍历到那里1，然后我们再找遍他们的前后左右，来解决问题
+  // 首先我们当然要先找到有岛屿的位置，所以要 双重 for 循环啊
+  // 开始之前我们要先给边界位置搞定
+  const row = grid.length
+  const col = grid[0].length
+  // 保存最大岛屿
+  let max = 0
+  const dfs = (i, j) => {
+    // 首先就是创建一个岛屿的样式
+    let count = 0
+    // 这时候就是要找到边界条件,这个边界条件其实就是首先我指定 i 和 j 得能找到，其次，得有海岛，也就是为 1
+    if (i > 0 && i < row - 1 && j > 0 && j < col - 1 && grid[i][j] == 1) {
+      // 然后我们要把岛屿的位置变成 0 ，这样就不会重复遍历了
+      grid[i][j] = 0
+      // 然后此时为 1 了，我们就要开始找周围的，就是利用递归，搞 dfs
+      count += dfs(i - 1, j)
+      count += dfs(i + 1, j)
+      count += dfs(i, j - 1)
+      count += dfs(i, j + 1)
+      // 最后返回岛屿的面积
+      count += 1
+    }
+    return count
+  }
+
+  for (let i = 0; i < row; i++) {
+    for (let j = 0; j < col; j++) {
+      // for 循环为 1 的情况
+      if (grid[i][j] == 1) {
+        // 接下来就要开始 dfs 深度遍历
+        const count = dfs(i, j)
+        // 最后再比较一下找到最大值
+        max = Math.max(count, max)
+      }
+    }
+  }
+  console.log(max)
 }
+maxAreaOfIsland(grid)

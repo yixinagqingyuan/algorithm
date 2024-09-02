@@ -8,6 +8,7 @@ const newGet = (obj, key) => {
   let newobj = obj
   // 这里要先给 key 切割这里为了解决数组中的数字问题
   // 他将其中的数组情况做一个替换处理 歧视就是将这个中括号去掉 然后将那个数字给拆开
+  // 这个正则就是要晒出来数组的情况 匹配数字\d 然后还是同样的一次或者多次 然后给中括号替换成点.搞定
   let keyArr = key.replace(/\[(\d+)\]/g, '.$1').split('.')
   console.log(keyArr)
   // 然后开始遍历

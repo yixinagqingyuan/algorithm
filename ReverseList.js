@@ -33,3 +33,19 @@ const reverselist1 = (head) => {
   }
   return prev
 }
+
+// 重写第二次
+
+const reverselist2 = (head) => {
+  // 按照之前的思路，要反转就要给当前的这个指向挂到上一个去
+  // 所以得弄个之前的，在弄个现在的
+  let prev = null
+  let curr = head
+  // 然后就是 while 循环啊，所以现假模假式的搞个
+  while (curr) {
+    const next = curr.next
+    curr.next = prev
+    prev = curr
+    curr = next
+  }
+}

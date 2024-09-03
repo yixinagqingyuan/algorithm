@@ -10,7 +10,6 @@ const decodeString = (str) => {
   let answer = ''
   let numberArr = []
   let numStr = ''
-  let bracketsArr = []
   let letterArr = []
   let letterStr = ''
   // 然后当然得遍历啊，在遍历的过程中，当然要简单的判断三种数据类型， 数字， 字母， 括号
@@ -86,4 +85,49 @@ const decodeString = (str) => {
   console.log(letterStr)
 }
 
-decodeString('3[a]2[bc2[d3[e]]]')
+// decodeString('3[a]2[bc2[d3[e]]]')
+
+// 重写字符串解码
+const decodeString1 = (str) => {
+  // 按照之前的思路按照中括号拆解
+  // 首先我们要搞个变量存结果啊
+  let numArr = []
+  let lettAarr = []
+  let num = ''
+  let lett = ''
+  // 然后现遍历
+  for (let i = 0; i < str.length; i++) {
+    // 我们先给这个单个字符串弄出来
+    let s = str[i]
+    // 然后判断他的类型
+    // 首先判断他是个数字的情况
+    if (/\d/.test(s)) {
+      num = num + s
+      // 碰见左括号要 push
+    } else if (s == '[') {
+      // 放在这是最合理的
+      numArr.push(num)
+      lettAarr.push(lett)
+      lett = ''
+      num = ''
+    } else if (s == ']') {
+      let curr = ''
+      // 碰见结束了要去从拿到最后那个值，拿出来push 进去
+      let num = numArr.pop()
+      let newlett = lettAarr.pop()
+      for (let i = 0; i < Number(num); i++) {
+        curr = curr + lett
+      }
+      lett = newlett + curr
+    } else {
+      lett = lett + s
+    }
+  }
+  console.log(lett)
+}
+
+decodeString1('3[a]2[bc2[d3[e]]]')
+// 这一题记住几个点，
+//先用来保存内容的变量
+// 然后利用中括号，的特性，来保存临时内容
+// 然后内容到最底层的时候，由于不能在保存了，就直接利用最内层的来事往外层扩散，相加最后得到最终结果

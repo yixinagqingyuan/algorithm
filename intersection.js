@@ -34,6 +34,8 @@ const intersection = (...arg) => {
   // 上来先搞第0个
   let pub = arg[0];
   for (let i = 1; i < arg.length; i++) {
+    // 这里有个非常有意思的，就是我直接将第一个复制到公共里头，相当于让然后开始遍历，相当于让第二个跟第一个比
+    // 公共的就和第三个比，解决了所有的问题
     const public = [];
     for (let j = 0; j < arg[i].length; j++) {
       if (pub.includes(arg[i][j])) {

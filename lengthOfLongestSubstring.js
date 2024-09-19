@@ -22,3 +22,19 @@ const lengthOfLongestSubstring = (str) => {
   }
   return max
 }
+
+// 再写一遍
+
+const lengthOfLongestSubstring1 = (str) => {
+  //  这题就是利用一个个往后走，发现重复的给前头的干掉，然后再往后走,最终比较从而求出最大的
+  let max = 0
+  let arr = []
+  for (let i = 0; i < str.length; i++) {
+    // 发现里头有了，就给前头的都干掉
+    if (arr.includes(str[i])) {
+      arr = arr.slice(arr.indexOf(str[i]) + 1)
+    }
+    arr.push(str[i])
+    max = Math.max(max, arr.length)
+  }
+}

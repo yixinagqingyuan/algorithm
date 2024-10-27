@@ -1,15 +1,22 @@
 {
-  "name": "algorithm",
-  "version": "1.0.0",
-  "description": "自己刷算法的新心得和思路",
-  "main": "algorithm.js",
+  "name": "eternal-life-grand-ceremony",
+  "version": "0.0.1",
+  "description": "面试心得",
+  "license": "MIT",
+  "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "docs:build": "vuepress build docs",
+    "docs:clean-dev": "vuepress dev docs --clean-cache",
+    "docs:dev": "vuepress dev docs",
+    "docs:update-package": "pnpm dlx vp-update"
   },
-  "author": "",
-  "license": "ISC",
-  "dependencies": {
-    "@tegfe/wmb-node": "^1.0.2",
+  "devDependencies": {
+    "@vuepress/bundler-vite": "^2.0.0-rc.7",
+    "@vuepress/plugin-blog": "^2.0.0-rc.11",
+    "@vuepress/theme-default": "^2.0.0-rc.11",
+    "sass": "^1.80.4",
+    "vue": "^3.4.0",
+    "vuepress": "^2.0.0-rc.7",
     "crypto": "^1.0.1"
   }
 }

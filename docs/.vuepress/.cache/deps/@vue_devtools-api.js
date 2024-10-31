@@ -1,4 +1,4 @@
-// node_modules/.pnpm/@vue+devtools-shared@7.5.4/node_modules/@vue/devtools-shared/dist/index.js
+// node_modules/@vue/devtools-shared/dist/index.js
 var __create = Object.create;
 var __defProp = Object.defineProperty;
 var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
@@ -45,8 +45,7 @@ var require_rfdc = __commonJS({
     }
     function rfdc2(opts) {
       opts = opts || {};
-      if (opts.circles)
-        return rfdcCircles(opts);
+      if (opts.circles) return rfdcCircles(opts);
       const constructorHandlers = /* @__PURE__ */ new Map();
       constructorHandlers.set(Date, (o) => new Date(o));
       constructorHandlers.set(Map, (o, fn) => new Map(cloneArray(Array.from(o), fn)));
@@ -77,17 +76,14 @@ var require_rfdc = __commonJS({
         return a2;
       }
       function clone(o) {
-        if (typeof o !== "object" || o === null)
-          return o;
-        if (Array.isArray(o))
-          return cloneArray(o, clone);
+        if (typeof o !== "object" || o === null) return o;
+        if (Array.isArray(o)) return cloneArray(o, clone);
         if (o.constructor !== Object && (handler = constructorHandlers.get(o.constructor))) {
           return handler(o, clone);
         }
         const o2 = {};
         for (const k in o) {
-          if (Object.hasOwnProperty.call(o, k) === false)
-            continue;
+          if (Object.hasOwnProperty.call(o, k) === false) continue;
           const cur = o[k];
           if (typeof cur !== "object" || cur === null) {
             o2[k] = cur;
@@ -102,10 +98,8 @@ var require_rfdc = __commonJS({
         return o2;
       }
       function cloneProto(o) {
-        if (typeof o !== "object" || o === null)
-          return o;
-        if (Array.isArray(o))
-          return cloneArray(o, cloneProto);
+        if (typeof o !== "object" || o === null) return o;
+        if (Array.isArray(o)) return cloneArray(o, cloneProto);
         if (o.constructor !== Object && (handler = constructorHandlers.get(o.constructor))) {
           return handler(o, cloneProto);
         }
@@ -163,10 +157,8 @@ var require_rfdc = __commonJS({
         return a2;
       }
       function clone(o) {
-        if (typeof o !== "object" || o === null)
-          return o;
-        if (Array.isArray(o))
-          return cloneArray(o, clone);
+        if (typeof o !== "object" || o === null) return o;
+        if (Array.isArray(o)) return cloneArray(o, clone);
         if (o.constructor !== Object && (handler = constructorHandlers.get(o.constructor))) {
           return handler(o, clone);
         }
@@ -174,8 +166,7 @@ var require_rfdc = __commonJS({
         refs.push(o);
         refsNew.push(o2);
         for (const k in o) {
-          if (Object.hasOwnProperty.call(o, k) === false)
-            continue;
+          if (Object.hasOwnProperty.call(o, k) === false) continue;
           const cur = o[k];
           if (typeof cur !== "object" || cur === null) {
             o2[k] = cur;
@@ -197,10 +188,8 @@ var require_rfdc = __commonJS({
         return o2;
       }
       function cloneProto(o) {
-        if (typeof o !== "object" || o === null)
-          return o;
-        if (Array.isArray(o))
-          return cloneArray(o, cloneProto);
+        if (typeof o !== "object" || o === null) return o;
+        if (Array.isArray(o)) return cloneArray(o, cloneProto);
         if (o.constructor !== Object && (handler = constructorHandlers.get(o.constructor))) {
           return handler(o, cloneProto);
         }
@@ -269,7 +258,7 @@ function isUrlString(str) {
 }
 var deepClone = (0, import_rfdc.default)({ circles: true });
 
-// node_modules/.pnpm/perfect-debounce@1.0.0/node_modules/perfect-debounce/dist/index.mjs
+// node_modules/perfect-debounce/dist/index.mjs
 var DEBOUNCE_DEFAULTS = {
   trailing: true
 };
@@ -326,7 +315,7 @@ async function _applyPromised(fn, _this, args) {
   return await fn.apply(_this, args);
 }
 
-// node_modules/.pnpm/hookable@5.5.3/node_modules/hookable/dist/index.mjs
+// node_modules/hookable/dist/index.mjs
 function flatHooks(configHooks, hooks2 = {}, parentName) {
   for (const key in configHooks) {
     const subHook = configHooks[key];
@@ -531,11 +520,11 @@ function createHooks() {
   return new Hookable();
 }
 
-// node_modules/.pnpm/birpc@0.2.19/node_modules/birpc/dist/index.mjs
+// node_modules/birpc/dist/index.mjs
 var { clearTimeout: clearTimeout2, setTimeout: setTimeout2 } = globalThis;
 var random = Math.random.bind(Math);
 
-// node_modules/.pnpm/@vue+devtools-kit@7.5.4/node_modules/@vue/devtools-kit/dist/index.js
+// node_modules/@vue/devtools-kit/dist/index.js
 var __create2 = Object.create;
 var __defProp2 = Object.defineProperty;
 var __getOwnPropDesc2 = Object.getOwnPropertyDescriptor;
@@ -2177,9 +2166,13 @@ async function getComponentId(options) {
   }
 }
 function isFragment(instance) {
-  var _a25;
+  var _a25, _b25;
   const subTreeType = (_a25 = instance.subTree) == null ? void 0 : _a25.type;
-  return subTreeType === Fragment;
+  const appRecord = getAppRecord(instance);
+  if (appRecord) {
+    return ((_b25 = appRecord == null ? void 0 : appRecord.types) == null ? void 0 : _b25.Fragment) === subTreeType;
+  }
+  return false;
 }
 function getInstanceName(instance) {
   var _a25, _b25, _c;
@@ -2219,8 +2212,7 @@ var StateEditor = class {
         object = object.get(section);
       if (object instanceof Set)
         object = Array.from(object.values())[section];
-      else
-        object = object[section];
+      else object = object[section];
       if (this.refEditor.isRef(object))
         object = this.refEditor.get(object);
     }
@@ -2273,8 +2265,7 @@ var StateEditor = class {
           object.delete(field);
         else if (toRaw(object) instanceof Set)
           object.delete(Array.from(object.values())[field]);
-        else
-          Reflect.deleteProperty(object, field);
+        else Reflect.deleteProperty(object, field);
       }
       if (!state.remove) {
         const target22 = object[state.newKey || field];
@@ -2709,6 +2700,7 @@ var devtoolsTimelineLayers = new Proxy(target.__VUE_DEVTOOLS_KIT_TIMELINE_LAYERS
   }
 });
 function addTimelineLayer(options, descriptor) {
+  devtoolsState.timelineLayersState[descriptor.id] = false;
   devtoolsTimelineLayers.push({
     ...options,
     descriptorId: descriptor.id,
@@ -2797,9 +2789,9 @@ function createDevToolsCtxHooks() {
   hooks2.hook("addInspector", ({ inspector, plugin }) => {
     addInspector(inspector, plugin.descriptor);
   });
-  hooks2.hook("sendInspectorTree", async ({ inspectorId, plugin }) => {
+  const debounceSendInspectorTree = debounce(async ({ inspectorId, plugin }) => {
     var _a25;
-    if (!inspectorId || !((_a25 = plugin == null ? void 0 : plugin.descriptor) == null ? void 0 : _a25.app))
+    if (!inspectorId || !((_a25 = plugin == null ? void 0 : plugin.descriptor) == null ? void 0 : _a25.app) || devtoolsState.highPerfModeEnabled)
       return;
     const inspector = getInspector(inspectorId, plugin.descriptor.app);
     const _payload = {
@@ -2828,10 +2820,11 @@ function createDevToolsCtxHooks() {
       "sendInspectorTreeToClient"
       /* SEND_INSPECTOR_TREE_TO_CLIENT */
     );
-  });
-  hooks2.hook("sendInspectorState", async ({ inspectorId, plugin }) => {
+  }, 120);
+  hooks2.hook("sendInspectorTree", debounceSendInspectorTree);
+  const debounceSendInspectorState = debounce(async ({ inspectorId, plugin }) => {
     var _a25;
-    if (!inspectorId || !((_a25 = plugin == null ? void 0 : plugin.descriptor) == null ? void 0 : _a25.app))
+    if (!inspectorId || !((_a25 = plugin == null ? void 0 : plugin.descriptor) == null ? void 0 : _a25.app) || devtoolsState.highPerfModeEnabled)
       return;
     const inspector = getInspector(inspectorId, plugin.descriptor.app);
     const _payload = {
@@ -2866,7 +2859,8 @@ function createDevToolsCtxHooks() {
       "sendInspectorStateToClient"
       /* SEND_INSPECTOR_STATE_TO_CLIENT */
     );
-  });
+  }, 120);
+  hooks2.hook("sendInspectorState", debounceSendInspectorState);
   hooks2.hook("customInspectorSelectNode", ({ inspectorId, nodeId, plugin }) => {
     const inspector = getInspector(inspectorId, plugin.descriptor.app);
     if (!inspector)
@@ -2877,6 +2871,10 @@ function createDevToolsCtxHooks() {
     addTimelineLayer(options, plugin.descriptor);
   });
   hooks2.hook("timelineEventAdded", ({ options, plugin }) => {
+    var _a25;
+    const internalLayerIds = ["performance", "component-event", "keyboard", "mouse"];
+    if (devtoolsState.highPerfModeEnabled || !((_a25 = devtoolsState.timelineLayersState) == null ? void 0 : _a25[plugin.descriptor.id]) && !internalLayerIds.includes(options.layerId))
+      return;
     hooks2.callHookWith(
       async (callbacks) => {
         await Promise.all(callbacks.map((cb) => cb(options)));
@@ -3290,6 +3288,9 @@ var DevToolsV6PluginAPI = class {
   selectInspectorNode(inspectorId, nodeId) {
     this.hooks.callHook("customInspectorSelectNode", { inspectorId, nodeId, plugin: this.plugin });
   }
+  visitComponentTree(payload) {
+    return this.hooks.callHook("visitComponentTree", payload);
+  }
   // timeline
   now() {
     return Date.now();
@@ -3463,6 +3464,8 @@ function normalizeRouterInfo(appRecord, activeAppRecord2) {
     if (((_a25 = activeAppRecord2.value) == null ? void 0 : _a25.app) !== appRecord.app)
       return;
     init();
+    if (devtoolsState.highPerfModeEnabled)
+      return;
     devtoolsContext.hooks.callHook("routerInfoUpdated", { state: target[ROUTER_INFO_KEY] });
   }, 200));
 }

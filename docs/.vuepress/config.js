@@ -1,3 +1,5 @@
+/** @format */
+
 import { blogPlugin } from '@vuepress/plugin-blog'
 import { defaultTheme } from '@vuepress/theme-default'
 import { defineUserConfig } from 'vuepress'
@@ -5,13 +7,10 @@ import { viteBundler } from '@vuepress/bundler-vite'
 
 export default defineUserConfig({
   lang: 'en-US',
-
-  title: 'VuePress',
-  description: 'My first VuePress Site',
+  title: '葵花宝典',
+  description: '一个真实的面经小本本，记录每一次面试以及复习记录',
 
   theme: defaultTheme({
-    logo: 'https://vuejs.press/images/hero.png',
-
     navbar: [
       '/',
       {

@@ -14,8 +14,67 @@ export default defineUserConfig({
     navbar: [
       '/',
       {
+        text: '复习指南',
+        children: [
+          {
+            text: 'HTML',
+            link: '/review/HTML.md',
+          },
+          {
+            text: 'CSS',
+            link: '/review/CSS.md',
+          },
+          {
+            text: 'JavaScript',
+            link: '/review/JavaScript.md',
+          },
+          {
+            text: '浏览器',
+            link: '/review/browser.md',
+          },
+          {
+            text: 'Vue',
+            link: '/review/Vue.md',
+          },
+          {
+            text: 'React',
+            link: '/review/React.md',
+          },
+        ],
+      },
+      {
+        text: '片汤话指南',
+        children: [
+          {
+            text: '个人简介',
+            link: '/politeLanguage/personalProfile.md',
+          },
+          {
+            text: '面试话术',
+            link: '/politeLanguage/languageSkills.md',
+          },
+        ],
+      },
+      {
         text: '面经',
-        link: '/article/',
+        link: '/faceClassic/',
+      },
+      {
+        text: '面试项目',
+        children: [
+          {
+            text: 'sentry性能监控',
+            link: '/project/sentry.md',
+          },
+          {
+            text: 'wangEditor富文本编辑器',
+            link: '/project/wangEditor.md',
+          },
+          {
+            text: 'LowCode低代码平台',
+            link: '/project/LowCode.md',
+          },
+        ],
       },
     ],
   }),

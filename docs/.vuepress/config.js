@@ -8,26 +8,14 @@ import { viteBundler } from '@vuepress/bundler-vite'
 export default defineUserConfig({
   lang: 'en-US',
   title: '葵花宝典',
-  description: '一个真实的面经小本本，记录每一次面试以及复习记录',
+  description: '一个真实的面经小本本，记录复习记录以及每一次面试以及反思',
 
   theme: defaultTheme({
     navbar: [
       '/',
       {
-        text: 'Article',
+        text: '面经',
         link: '/article/',
-      },
-      {
-        text: 'Category',
-        link: '/category/',
-      },
-      {
-        text: 'Tag',
-        link: '/tag/',
-      },
-      {
-        text: 'Timeline',
-        link: '/timeline/',
       },
     ],
   }),

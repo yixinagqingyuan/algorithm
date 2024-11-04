@@ -1,5 +1,5 @@
 import comp from "/Users/a58/2023/algorithm/docs/.vuepress/.temp/pages/index.html.vue"
-const data = JSON.parse("{\"path\":\"/\",\"title\":\"Home\",\"lang\":\"en-US\",\"frontmatter\":{\"home\":true,\"title\":\"Home\",\"actions\":[{\"text\":\"Get Started\",\"link\":\"/getting-started.html\",\"type\":\"primary\"}],\"footer\":\"老骥farmer的blog\"},\"headers\":[],\"git\":{\"updatedTime\":1730035128000,\"contributors\":[{\"name\":\"杨永生\",\"email\":\"1245997863@qq.com\",\"commits\":1}]},\"filePathRelative\":\"README.md\"}")
+const data = JSON.parse("{\"path\":\"/\",\"title\":\"Home\",\"lang\":\"en-US\",\"frontmatter\":{\"home\":true,\"title\":\"Home\",\"actions\":[{\"text\":\"Get Started\",\"link\":\"/getting-started.html\",\"type\":\"primary\"}],\"footer\":\"老骥farmer的blog\"},\"headers\":[],\"git\":{\"updatedTime\":1730377486000,\"contributors\":[{\"name\":\"杨永生\",\"email\":\"1245997863@qq.com\",\"commits\":1},{\"name\":\"杨永生\",\"email\":\"yangyongsheng@58.com\",\"commits\":1}]},\"filePathRelative\":\"README.md\"}")
 export { comp, data }
 
 if (import.meta.webpackHot) {

@@ -1,5 +1,5 @@
 import comp from "/Users/a58/2023/algorithm/docs/.vuepress/.temp/pages/review/CSS.html.vue"
-const data = JSON.parse("{\"path\":\"/review/CSS.html\",\"title\":\"这是 css\",\"lang\":\"en-US\",\"frontmatter\":{},\"headers\":[],\"git\":{\"updatedTime\":null,\"contributors\":[]},\"filePathRelative\":\"review/CSS.md\",\"excerpt\":\"<!-- @format -->\\n<h1>这是 css</h1>\\n\"}")
+const data = JSON.parse("{\"path\":\"/review/CSS.html\",\"title\":\"这是 css\",\"lang\":\"en-US\",\"frontmatter\":{},\"headers\":[],\"git\":{\"updatedTime\":1730712998000,\"contributors\":[{\"name\":\"杨永生\",\"email\":\"yangyongsheng@58.com\",\"commits\":1}]},\"filePathRelative\":\"review/CSS.md\",\"excerpt\":\"<!-- @format -->\\n<h1>这是 css</h1>\\n\"}")
 export { comp, data }
 
 if (import.meta.webpackHot) {

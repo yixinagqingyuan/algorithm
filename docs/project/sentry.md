@@ -147,6 +147,8 @@ domInteractive、domContentLoadedEventStart、domContentLoadedEventEnd、domComp
 舍弃？那是不行的，都是衣食父母，所以只能我们开发者来兼容，怎么兼容呢？
 
 很简单，有就用，没有就降级用之前的那个标准（高端的技术都是朴素的招数）
+而获取PerformanceNavigationTiming 也有一个我理解的很奇怪的方式 通过`getEntriesByType` 来获取
+就会形成如下兼容代码：
 
 ```js
 let timing =
@@ -157,6 +159,67 @@ let timing =
       : performance.timing; // W3C Level1  (目前兼容性高，仍然可使用，未来可能被废弃)。
 
 ```
+好了，有了以上数据，我们就能顺利的对当前的页面性能进行监控了
+代码如下： 
+
+```js
+let start = timing.navigationStart,
+    dnsTime = 0,
+    tcpTime = 0,
+    firstPaintTime = 0,
+    domRenderTime = 0,
+    loadTime = 0;
+
+dnsTime = timing.domainLookupEnd - timing.domainLookupStart;
+tcpTime = timing.connectEnd - timing.connectStart;
+firstPaintTime = timing.responseStart - start;
+domRenderTime = timing.domContentLoadedEventEnd - start;
+loadTime = timing.loadEventEnd - start;
+
+console.log('DNS解析时间:', dnsTime,
+            '\nTCP建立时间:', tcpTime,
+            '\n首屏时间:', firstPaintTime,
+            '\ndom渲染完成时间:', domRenderTime,
+            '\n页面onload时间:', loadTime,
+            '\n域名:',  document.domain,
+            '\n当前 URL 地址:',  document.URL,
+            '\n当前页面标题:',  document.title,
+            '\n上一个访问页面 URL 地址:',  document.referrer,
+            '\n屏幕高度:',  window.screen.height,
+            '\n屏幕宽度:',  window.screen.width,
+            '\n屏幕颜色深度:',  window.screen.colorDepth,
+            '\n设备型号:',  window.userAgent,
+            '\n设备语言:',  window.language,);
+```
+以上代码中我们就很简单的获取了页面整体性能数据，根据这些数据，就能形成指标
+
+- 加载时间：页面运行时各个阶段的加载时间；
+- TTFB(Time To First Byte)(首字节时间)：浏览器发起第一个请求到数据返回第一个字节所消耗的时间，这个时间包含了网络请求时间、后端处理时间；
+- FP(First Paint)(首次绘制)：首次绘制包括了任何用户自定义的背景绘制，它是将第一个像素点绘制到屏幕的时刻；
+- FCP(First Content Paint)(首次内容绘制)：首次内容绘制是浏览器将第一个 DOM 渲染到屏幕的时间,可以是任何文本、图像、SVG 等的时间；
+- FMP(First Meaningful paint)(首次有意义绘制)：首次有意义绘制是页面可用性的量度标准；
+- LCP(Largest Contentful Paint)：视窗内最大的图片或者文本渲染的时间，当最大的内容块渲染完的时候，基本上主内容都加载完了，与现有的页面加载指标相比，与用户体验的相关性更好；
+- FID(First Input Delay)(首次输入延迟)：用户首次和页面交互到页面响应交互的时间；
+- 卡顿：指超过 50ms 的长任务，具体的指标可以根据页面的内容进行调节，一般 50ms 人眼就能感觉到卡顿。
+- PV：Page View 即页面浏览量或点击量；
+首屏加载时间
+首屏加载时间和首页加载时间不一样，首屏指的是屏幕内的 dom 渲染完成的时间
+
+比如首页很长需要好几屏展示，这种情况下屏幕以外的元素不考虑在内
+
+- 计算首屏加载时间流程
+
+1）利用MutationObserver监听document对象，每当 dom 变化时触发该事件
+
+2）判断监听的 dom 是否在首屏内，如果在首屏内，将该 dom 放到指定的数组中，记录下当前 dom 变化的时间点
+
+3）在 MutationObserver 的 callback 函数中，通过防抖函数，监听document.readyState状态的变化
+
+4）当document.readyState === 'complete'，停止定时器和 取消对 document 的监听
+
+5）遍历存放 dom 的数组，找出最后变化节点的时间，用该时间点减去performance.timing.navigationStart 得出首屏的加载时间
+
+当数据形成这些指标的时候就能针对性的对页面进行优化
 
 
 ### 异常监控
@@ -166,3 +229,528 @@ let timing =
 Javascript 的异常监控
 资源加载异常监控
 接口请求异常监控
+
+当然，这个也很简单，同样利用，浏览器的 api 来实现错误捕获
+
+#### 错误捕获方式
+##### try/catch
+```js
+// 示例1：常规运行时错误，可以捕获 ✅
+ try {
+   let a = undefined;
+   if (a.length) {
+     console.log('111');
+   }
+ } catch (e) {
+   console.log('捕获到异常：', e);
+}
+
+// 示例2：语法错误，不能捕获 ❌
+try {
+  const notdefined,
+} catch(e) {
+  console.log('捕获不到异常：', 'Uncaught SyntaxError');
+}
+
+// 示例3：异步错误，不能捕获 ❌
+try {
+  setTimeout(() => {
+    console.log(notdefined);
+  }, 0)
+} catch(e) {
+  console.log('捕获不到异常：', 'Uncaught ReferenceError');
+}
+```
+
+#####  window.onerror
+window.onerror 可以捕获常规错误、异步错误，但不能捕获资源错误
+
+```js
+window.onerror = function(message, source, lineno, colno, error) {
+  console.log("捕获到的错误信息是：", message, source, lineno, colno, error);
+};
+
+// 示例1：常规运行时错误，可以捕获 ✅
+console.log(notdefined);
+
+// 示例2：语法错误，不能捕获 ❌
+const notdefined;
+
+// 示例3：异步错误，可以捕获 ✅
+setTimeout(() => {
+  console.log(notdefined);
+}, 0);
+
+// 示例4：资源错误，不能捕获 ❌
+let script = document.createElement("script");
+script.type = "text/javascript";
+script.src = "https://www.test.com/index.js";
+document.body.appendChild(script);
+```
+######  window.addEventListener
+当静态资源加载失败时，会触发 error 事件， 此时 window.onerror 不能捕获到
+
+```js
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+</head>
+<script>
+  window.addEventListener('error', (error) => {
+    console.log('捕获到异常：', error);
+  }, true)
+</script>
+
+<!-- 图片、script、css加载错误，都能被捕获 ✅ -->
+<img src="https://test.cn/×××.png">
+<script src="https://test.cn/×××.js"></script>
+<link href="https://test.cn/×××.css" rel="stylesheet" />
+
+<script>
+  // new Image错误，不能捕获 ❌
+  // new Image运用的比较少，可以自己单独处理
+  new Image().src = 'https://test.cn/×××.png'
+</script>
+</html>
+
+```
+##### Promise 错误
+Promise 中抛出的错误，无法被 window.onerror、try/catch、 error 事件捕获到，可通过 unhandledrejection 事件来处理
+
+```js
+try {
+  new Promise((resolve, reject) => {
+    JSON.parse('');
+    resolve();
+  });
+} catch (err) {
+  // try/catch 不能捕获Promise中错误 ❌
+  console.error('in try catch', err);
+}
+
+// error事件 不能捕获Promise中错误 ❌
+window.addEventListener(
+  'error',
+  (error) => {
+    console.log('捕获到异常：', error);
+  },
+  true
+);
+
+// window.onerror 不能捕获Promise中错误 ❌
+window.onerror = function (message, source, lineno, colno, error) {
+  console.log('捕获到异常：', { message, source, lineno, colno, error });
+};
+
+// unhandledrejection 可以捕获Promise中的错误 ✅
+window.addEventListener('unhandledrejection', function (e) {
+  console.log('捕获到异常', e);
+  // preventDefault阻止传播，不会在控制台打印
+  e.preventDefault();
+});
+
+```
+##### Vue 错误捕获
+Vue 项目中，window.onerror 和 error 事件不能捕获到常规的代码错误，需要使用 vue 的 api 
+
+```js
+Vue.config.errorHandler = (err, vm, info) => {
+  console.log('进来啦~', err);
+};
+
+```
+
+##### React 错误
+从 react16 开始，官方提供了 ErrorBoundary 错误边界的功能，被该组件包裹的子组件，render 函数报错时会触发离当前组件最近父组件的 ErrorBoundary
+
+生产环境，一旦被 ErrorBoundary 捕获的错误，也不会触发全局的 window.onerror 和 error 事件
+
+```js
+import React from 'react';
+import Child from './Child.js';
+
+// window.onerror 不能捕获render函数的错误 ❌
+window.onerror = function (err, msg, c, l) {
+  console.log('err', err, msg);
+};
+
+// error 不能render函数的错误 ❌
+window.addEventListener(
+  'error',
+  (error) => {
+    console.log('捕获到异常：', error);
+  },
+  true
+);
+
+class ErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError(error) {
+    // 更新 state 使下一次渲染能够显示降级后的 UI
+    return { hasError: true };
+  }
+  componentDidCatch(error, errorInfo) {
+    // componentDidCatch 可以捕获render函数的错误
+    console.log(error, errorInfo);
+
+    // 同样可以将错误日志上报给服务器
+    reportError(error, errorInfo);
+  }
+  render() {
+    if (this.state.hasError) {
+      // 自定义降级后的 UI 并渲染
+      return <h1>Something went wrong.</h1>;
+    }
+    return this.props.children;
+  }
+}
+
+function Parent() {
+  return (
+    <div>
+      父组件
+      <ErrorBoundary>
+        <Child />
+      </ErrorBoundary>
+    </div>
+  );
+}
+
+export default Parent;
+```
+同 vue 项目的处理类似，react 项目中，可以在 componentDidCatch 中将捕获的错误上报
+
+```js
+componentDidCatch(error, errorInfo) {
+  // handleError方法用来处理错误并上报
+  handleError(err);
+}
+```
+#####  跨域问题捕获
+如果当前页面中，引入了其他域名的 JS 资源，如果资源出现错误，error 事件只会监测到一个  script error 的异常。
+
+```js
+window.addEventListener(
+  'error',
+  (error) => {
+    console.log('捕获到异常：', error);
+  },
+  true
+);
+
+// 当前页面加载其他域的资源，如https://www.test.com/index.js
+<script src="https://www.test.com/index.js"></script>;
+
+// 加载的https://www.test.com/index.js的代码
+function fn() {
+  JSON.parse('');
+}
+fn();
+```
+只能捕获到 script error 的原因：
+
+是由于浏览器基于安全考虑，故意隐藏了其它域 JS 文件抛出的具体错误信息，这样可以有效避免敏感信息无意中被第三方(不受控制的)脚本捕获到，因此，浏览器只允许同域下的脚本捕获具体的错误信息
+
+解决方法：
+
+前端 script 加 crossorigin，后端配置 Access-Control-Allow-Origin, 添加 crossorigin 后可以捕获到完整的报错信息
+
+```js
+<script src="https://www.test.com/index.js" crossorigin></script>
+```
+如果不能修改服务端的请求头，可以考虑通过使用 try/catch 绕过，将错误抛出
+
+```js
+<!doctype html>
+<html>
+<body>
+  <script src="https://www.test.com/index.js"></script>
+  <script>
+  window.addEventListener("error", error => {
+    console.log("捕获到异常：", error);
+  }, true );
+
+  try {
+    // 调用https://www.test.com/index.js中定义的fn方法
+    fn();
+  } catch (e) {
+    throw e;
+  }
+  </script>
+</body>
+</html>
+```
+
+##### 接口错误
+接口监控的实现原理：针对浏览器内置的 XMLHttpRequest、fetch 对象，利用 AOP 切片编程重写该方法，实现对请求的接口拦截，从而获取接口报错的情况并上报
+拦截 XMLHttpRequest 请求示例：
+```js
+function xhrReplace() {
+  if (!('XMLHttpRequest' in window)) {
+    return;
+  }
+  const originalXhrProto = XMLHttpRequest.prototype;
+  // 重写XMLHttpRequest 原型上的open方法
+  replaceAop(originalXhrProto, 'open', (originalOpen) => {
+    return function (...args) {
+      // 获取请求的信息
+      this._xhr = {
+        method: typeof args[0] === 'string' ? args[0].toUpperCase() : args[0],
+        url: args[1],
+        startTime: new Date().getTime(),
+        type: 'xhr'
+      };
+      // 执行原始的open方法
+      originalOpen.apply(this, args);
+    };
+  });
+  // 重写XMLHttpRequest 原型上的send方法
+  replaceAop(originalXhrProto, 'send', (originalSend) => {
+    return function (...args) {
+      // 当请求结束时触发，无论请求成功还是失败都会触发
+      this.addEventListener('loadend', () => {
+        const { responseType, response, status } = this;
+        const endTime = new Date().getTime();
+        this._xhr.reqData = args[0];
+        this._xhr.status = status;
+        if (['', 'json', 'text'].indexOf(responseType) !== -1) {
+          this._xhr.responseText =
+            typeof response === 'object' ? JSON.stringify(response) : response;
+        }
+        // 获取接口的请求时长
+        this._xhr.elapsedTime = endTime - this._xhr.startTime;
+
+        // 上报xhr接口数据
+        reportData(this._xhr);
+      });
+      // 执行原始的send方法
+      originalSend.apply(this, args);
+    };
+  });
+}
+
+/**
+ * 重写指定的方法
+ * @param { object } source 重写的对象
+ * @param { string } name 重写的属性
+ * @param { function } fn 拦截的函数
+ */
+function replaceAop(source, name, fn) {
+  if (source === undefined) return;
+  if (name in source) {
+    var original = source[name];
+    var wrapped = fn(original);
+    if (typeof wrapped === 'function') {
+      source[name] = wrapped;
+    }
+  }
+}
+```
+
+拦截 fetch 请求示例：
+
+```js
+function fetchReplace() {
+  if (!('fetch' in window)) {
+    return;
+  }
+  // 重写fetch方法
+  replaceAop(window, 'fetch', (originalFetch) => {
+    return function (url, config) {
+      const sTime = new Date().getTime();
+      const method = (config && config.method) || 'GET';
+      let handlerData = {
+        type: 'fetch',
+        method,
+        reqData: config && config.body,
+        url
+      };
+
+      return originalFetch.apply(window, [url, config]).then(
+        (res) => {
+          // res.clone克隆，防止被标记已消费
+          const tempRes = res.clone();
+          const eTime = new Date().getTime();
+          handlerData = {
+            ...handlerData,
+            elapsedTime: eTime - sTime,
+            status: tempRes.status
+          };
+          tempRes.text().then((data) => {
+            handlerData.responseText = data;
+            // 上报fetch接口数据
+            reportData(handlerData);
+          });
+
+          // 返回原始的结果，外部继续使用then接收
+          return res;
+        },
+        (err) => {
+          const eTime = new Date().getTime();
+          handlerData = {
+            ...handlerData,
+            elapsedTime: eTime - sTime,
+            status: 0
+          };
+          // 上报fetch接口数据
+          reportData(handlerData);
+          throw err;
+        }
+      );
+    };
+  });
+}
+```
+
+##### 监控白屏异常
+白屏就是页面上什么东西也没有，在页面加载完成之后，如果页面上的空白点很多，就说明页面是白屏的，需要上报，这个上报的时机是：document.readyState === 'complete' 表示文档和所有的子资源已完成加载，表示load（window.addEventListener('load'）状态事件即将被触发。
+
+document.readyState 有三个值：loading（document正在加载），interactive（可交互，表示正在加载的状态结束，但是图像，样式和框架之类的子资源仍在加载），complete 就是完成，所以监控白屏需要在文档都加载完成的情况下触发。
+```js
+export function onload(callback) {
+  if (document.readyState === 'complete') {
+    callback()
+  } else {
+    window.addEventListener('onload', callback)
+  }
+}
+```
+监控白屏的思路主要是：可以将可视区域中心点作为坐标轴的中心，在X、Y轴上各分 10 个点，找出这个 20 个坐标点上最上层的 DOM 元素，如过这些元素是包裹元素，空白点数就加一，包裹元素可以自定义比如 Html Body App Root Container Content 等，空白点数大于 0 就上报白屏日志。他的主要核心就是`elementFromPoint` api
+
+```js
+export default function computedBlankScreen() {
+  // 包裹玉元素列表
+  const wrapperSelectors = ['body', 'html', '#root', '#App']
+  // 空白节点的个数
+  let emptyPoints = 0
+  // 判断20个点处的元素是否是包裹元素
+  function isWrapper(element) {
+    const selector = getSelector(element)
+    console.log(selector)
+    if (wrapperSelectors.indexOf(selector) >= 0) { // 表示是在包裹元素里面，空白点就要加一
+      emptyPoints++
+    }
+  }
+  onload(function() {
+    let xElements, yElements
+    for (let i = 0; i <=9; i++) {
+      xElements = document.elementFromPoint(window.innerWidth * i / 10, window.innerHeight / 2)
+      yElements = document.elementFromPoint(window.innerHeight * i / 10, window.innerWidth / 2)
+      // document.elementFromPoint 返回的是某一个坐标点的由到外的html元素的集合
+      isWrapper(xElements[0])
+      isWrapper(yElements[0])
+    }
+    if (emptyPoints >= 0) {
+      let centerPoint = document.elementFromPoint(window.innerWidth / 2, window.innerHeight / 2)
+      tracker.send()
+    }
+  })
+}
+```
+### 内容上报
+
+内容上报支持图片打点上报和 fetch 请求上报两种方式
+
+一般情况下，都是伪装图片上报偷偷携带内容为主
+
+图片打点上报的优势：
+1）支持跨域，一般而言，上报域名都不是当前域名，上报的接口请求会构成跨域
+2）体积小且不需要插入 dom 中
+3）不需要等待服务器返回数据
+
+图片打点缺点是：url 受浏览器长度限制，但你可以在上报的时候限制，可谓瑕不掩瑜
+
+上报方式非常简单
+
+```js
+var img = new Image();
+img.width = 1;
+img.height = 1;
+img.src = '/sa.gif?project=default&data=xxx';
+```
+
+### 上报数据清洗
+
+这其实就很简单了入库分类，然后展示，不再赘述
+
+以上内容整个监控体系的整体搭建流程，涉及性能分析，错误分析，错误展示，等等
+## sentry-javascript 分析
+
+sentry是一个开源的监控平台，可为监控界的老大哥，我们科普了整体监控体系之后，就可以琢磨下源码解读了
+
+其实大家可以发现，整体的监控平台的核心就是 sdk 只要 sdk 的数据上报能搞搞定，其他的数据清洗都是展示和分类而已
+
+所以我们要来琢磨一下如果引导大家看 sentry-sdk 
+
+ Sentry 支持 React、Vue、Angular 等框架，支持 nodejs、浏览器端 javascript，可以说支持非常全面。
+
+
+接下来就以 sentry-javascript（sdk） 为例，自顶向下的分析其结构。
+
+**仓库地址：https://github.com/getsentry/sentry-javascript**
+
+### 准备工作
+
+
+首先对整体结构进行分析，观察其调用链、各个模块的作用和相互之间的依赖关系，构建一个全局的视野。
+
+其次会综合使用动态分析和静态分析两种方法，对源码进行分析总结，围绕两大线索进行分析总结：
+
+- 监控脚本是如何初始化的
+- 出现错误时是如何捕获、处理、上报的
+- 理清楚这两条线，就能够对 sentry-javascript 的源码执行的来龙去脉有比较好的把握。
+
+最后查看 sentry 使用的一些辅助工具，对本次分析绘制出完整的总结图，分析 Sentry 在质量保障上是如何实践的。完成这些后在 Sentry 源码分析之旅上就向前了一小步。
+
+
+
+
+
+
+
+#### 了解使用方式
+刚开始时我们拥有的信息非常少，不足以支撑进行下一步，可以先了解使用方式入手。我主要使用 React 技术栈，这就先看看 vue 和 JavaScript 两种情况的接入方式。
+
+从使用文档中我们找到了一段示例：
+
+```js
+npm install --save @sentry/vue
+import * as Sentry from '@sentry/vue';
+const app = createApp({
+  // ...
+});
+
+Sentry.init({
+  app,
+  dsn: '__PUBLIC_DSN__',
+  integrations: [
+    // Or omit `router` if you're not using vue-router
+    Sentry.browserTracingIntegration({ router }),
+  ],
+});
+```
+### 依赖结构
+
+了解使用方式之后我们就可以分析他的依赖结构
+
+也就是依赖关系，能帮助我们更透彻的理解整体的脉络
+
+我们可以借助一个工具
+
+**https://npmgraph.js.org/ 可视化 npm 包的依赖**
+
+![](../assets/relyOn.png)
+
+如图所示，我们就能通过依赖图谱，看到整体的依赖关系
+
+然后在依据整体的监控上报流程，就可以打断点分析源码了
+
+当然源码其实已经有人帮忙分析过了，我们可以参考一下
+具体参考如下：
+
+- https://www.yuque.com/lizhiyao/sentry-miniapp/sentry-javascript-src

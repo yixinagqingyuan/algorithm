@@ -1,3 +1,8 @@
 <!-- @format -->
 
-# 这是 javascript
+# javascript
+
+# JS 类型
+
+
+

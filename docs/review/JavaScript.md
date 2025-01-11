@@ -2,9 +2,8 @@
 
 # javascript
 
-## 数据类型类的
 
-## 为什么 JavaScript 中 0.1 + 0.2 !== 0.3，如何让其相等？
+## 1、为什么 JavaScript 中 0.1 + 0.2 !== 0.3，如何让其相等？
 
 ### **为什么 `0.1 + 0.2 !== 0.3`？**
 
@@ -116,7 +115,7 @@ console.log(sum.equals(0.3)) // true
 
 根据场景选择合适的方法来解决浮点数精度问题！
 
-## typeof 和 instanceof 有什么区别？
+## 2、typeof 和 instanceof 有什么区别？
 
 ### **`typeof` 和 `instanceof` 的区别**
 
@@ -331,7 +330,7 @@ console.log(isPerson({})) // false
 2. **`instanceof`** 用于检查对象的原型链关系，适合判断是否是某个构造函数的实例，但无法判断基本数据类型。
 3. 在实际开发中，可以根据需求灵活选择，或者结合两者一起使用以提高准确性。
 
-## typeof null 的结果是什么？为什么？
+## 3、typeof null 的结果是什么？为什么？
 
 ### **`typeof null` 的结果是什么？**
 

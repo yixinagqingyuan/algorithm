@@ -6,6 +6,9 @@ import { defineUserConfig } from 'vuepress'
 import { viteBundler } from '@vuepress/bundler-vite'
 
 export default defineUserConfig({
+  themeConfig: {
+    sidebarDepth: 2, // 只显示到二级目录
+  },
   lang: 'en-US',
   title: '葵花宝典',
   description: '一个真实的面经小本本，记录复习记录以及每一次面试以及反思',

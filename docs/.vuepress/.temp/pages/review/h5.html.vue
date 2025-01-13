@@ -1,6 +1,6 @@
 <template><div><!-- @format -->
-<h1 id="移动端热门面试题" tabindex="-1"><a class="header-anchor" href="#移动端热门面试题"><span>移动端热门面试题</span></a></h1>
-<h2 id="移动端网站和响应式网站有什么区别-你在项目中是如何处理移动端适配的" tabindex="-1"><a class="header-anchor" href="#移动端网站和响应式网站有什么区别-你在项目中是如何处理移动端适配的"><span>移动端网站和响应式网站有什么区别？你在项目中是如何处理移动端适配的？</span></a></h2>
+<h1 id="移动端热门考题" tabindex="-1"><a class="header-anchor" href="#移动端热门考题"><span>移动端热门考题</span></a></h1>
+<h2 id="_1、移动端网站和响应式网站有什么区别-你在项目中是如何处理移动端适配的" tabindex="-1"><a class="header-anchor" href="#_1、移动端网站和响应式网站有什么区别-你在项目中是如何处理移动端适配的"><span>1、移动端网站和响应式网站有什么区别？你在项目中是如何处理移动端适配的？</span></a></h2>
 <p>移动端网站和响应式网站是两种常见的面向移动设备的开发方式，它们在实现方式和设计思路上有所区别。以下是两者的对比，以及处理移动端适配的常用方法。</p>
 <hr>
 <h3 id="移动端网站" tabindex="-1"><a class="header-anchor" href="#移动端网站"><span><strong>移动端网站</strong></span></a></h3>

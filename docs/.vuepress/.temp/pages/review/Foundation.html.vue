@@ -1,6 +1,6 @@
 <template><div><!-- @format -->
-<h1 id="基础题目" tabindex="-1"><a class="header-anchor" href="#基础题目"><span>基础题目</span></a></h1>
-<h2 id="如何解决⻚面请求接口大规模并发问题" tabindex="-1"><a class="header-anchor" href="#如何解决⻚面请求接口大规模并发问题"><span>如何解决⻚⾯请求接⼝⼤规模并发问题？</span></a></h2>
+<h1 id="基础热门考题" tabindex="-1"><a class="header-anchor" href="#基础热门考题"><span>基础热门考题</span></a></h1>
+<h2 id="_1、如何解决⻚面请求接口大规模并发问题" tabindex="-1"><a class="header-anchor" href="#_1、如何解决⻚面请求接口大规模并发问题"><span>1、如何解决⻚⾯请求接⼝⼤规模并发问题？</span></a></h2>
 <p>页面请求接口大规模并发问题是指在前端应用中同时发起大量网络请求时，可能会导致性能问题（如浏览器或服务器崩溃）、请求失败、服务器资源紧张等问题。以下是几种常见的解决方案：</p>
 <hr>
 <h3 id="_1-问题的原因分析" tabindex="-1"><a class="header-anchor" href="#_1-问题的原因分析"><span><strong>1. 问题的原因分析</strong></span></a></h3>

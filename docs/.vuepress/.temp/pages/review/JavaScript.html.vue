@@ -1,5 +1,5 @@
 <template><div><!-- @format -->
-<h1 id="javascript" tabindex="-1"><a class="header-anchor" href="#javascript"><span>javascript</span></a></h1>
+<h1 id="javascript-热门考题" tabindex="-1"><a class="header-anchor" href="#javascript-热门考题"><span>javascript 热门考题</span></a></h1>
 <h2 id="_1、为什么-javascript-中-0-1-0-2-0-3-如何让其相等" tabindex="-1"><a class="header-anchor" href="#_1、为什么-javascript-中-0-1-0-2-0-3-如何让其相等"><span>1、为什么 JavaScript 中 0.1 + 0.2 !== 0.3，如何让其相等？</span></a></h2>
 <h3 id="为什么-0-1-0-2-0-3" tabindex="-1"><a class="header-anchor" href="#为什么-0-1-0-2-0-3"><span><strong>为什么 <code v-pre>0.1 + 0.2 !== 0.3</code>？</strong></span></a></h3>
 <h4 id="_1-原因-浮点数精度问题" tabindex="-1"><a class="header-anchor" href="#_1-原因-浮点数精度问题"><span><strong>1. 原因：浮点数精度问题</strong></span></a></h4>
@@ -404,7 +404,7 @@
 <li>这种行为虽然不符合直觉，但已成为语言规范的一部分。</li>
 <li>为了准确判断 <code v-pre>null</code>，建议使用严格等于 <code v-pre>=== null</code> 或 <code v-pre>Object.prototype.toString</code> 方法。</li>
 </ul>
-<h2 id="javascript-中-null-和-undefined-的区别是什么" tabindex="-1"><a class="header-anchor" href="#javascript-中-null-和-undefined-的区别是什么"><span>JavaScript 中 null 和 undefined 的区别是什么？</span></a></h2>
+<h2 id="_4、javascript-中-null-和-undefined-的区别是什么" tabindex="-1"><a class="header-anchor" href="#_4、javascript-中-null-和-undefined-的区别是什么"><span>4、JavaScript 中 null 和 undefined 的区别是什么？</span></a></h2>
 <h3 id="null-和-undefined-的区别" tabindex="-1"><a class="header-anchor" href="#null-和-undefined-的区别"><span><strong><code v-pre>null</code> 和 <code v-pre>undefined</code> 的区别</strong></span></a></h3>
 <p>在 JavaScript 中，<code v-pre>null</code> 和 <code v-pre>undefined</code> 都表示“空”或“无”的状态，但它们有明显的区别，适用场景和语义也不同。</p>
 <hr>
@@ -589,7 +589,7 @@
 <li><strong>用 <code v-pre>undefined</code> 表示变量未初始化或未定义。</strong></li>
 <li><strong>用 <code v-pre>null</code> 显式表示空值或无效值。</strong></li>
 </ul>
-<h2 id="说说你对-js-作用域的理解" tabindex="-1"><a class="header-anchor" href="#说说你对-js-作用域的理解"><span>说说你对 JS 作用域的理解？</span></a></h2>
+<h2 id="_5、说说你对-js-作用域的理解" tabindex="-1"><a class="header-anchor" href="#_5、说说你对-js-作用域的理解"><span>5、说说你对 JS 作用域的理解？</span></a></h2>
 <h3 id="javascript-作用域的理解" tabindex="-1"><a class="header-anchor" href="#javascript-作用域的理解"><span><strong>JavaScript 作用域的理解</strong></span></a></h3>
 <p>在 JavaScript 中，<strong>作用域（Scope）</strong> 是指变量、函数、对象等可以被访问和操作的范围。作用域决定了一个变量、函数或对象在代码中是否可用。理解作用域对于编写高效和无错误的代码至关重要。</p>
 <h4 id="_1-作用域的分类" tabindex="-1"><a class="header-anchor" href="#_1-作用域的分类"><span><strong>1. 作用域的分类</strong></span></a></h4>
@@ -747,8 +747,8 @@
 <li><strong>闭包</strong>：允许内部函数访问外部函数作用域中的变量。</li>
 </ul>
 <p>理解 JavaScript 的作用域对于避免变量污染、内存泄漏和其他错误非常重要。</p>
-<h2 id="let、const-和-var-的区别" tabindex="-1"><a class="header-anchor" href="#let、const-和-var-的区别"><span>let、const 和 var 的区别</span></a></h2>
-<h3 id="let、const-和-var-的区别-1" tabindex="-1"><a class="header-anchor" href="#let、const-和-var-的区别-1"><span><strong><code v-pre>let</code>、<code v-pre>const</code> 和 <code v-pre>var</code> 的区别</strong></span></a></h3>
+<h2 id="_6、let、const-和-var-的区别" tabindex="-1"><a class="header-anchor" href="#_6、let、const-和-var-的区别"><span>6、let、const 和 var 的区别</span></a></h2>
+<h3 id="let、const-和-var-的区别" tabindex="-1"><a class="header-anchor" href="#let、const-和-var-的区别"><span><strong><code v-pre>let</code>、<code v-pre>const</code> 和 <code v-pre>var</code> 的区别</strong></span></a></h3>
 <p>在 JavaScript 中，<code v-pre>let</code>、<code v-pre>const</code> 和 <code v-pre>var</code> 都用于声明变量，但它们的行为和作用范围有显著的区别。以下是它们的详细比较：</p>
 <hr>
 <h3 id="_1-作用域-scope" tabindex="-1"><a class="header-anchor" href="#_1-作用域-scope"><span><strong>1. 作用域（Scope）</strong></span></a></h3>
@@ -935,7 +935,7 @@
 <li><strong>现代 JavaScript 中推荐使用 <code v-pre>let</code> 和 <code v-pre>const</code>，尤其是 <code v-pre>const</code>，因为它能帮助你避免不必要的修改，提高代码的可维护性和可读性。</strong></li>
 <li><strong><code v-pre>var</code> 已经不推荐使用，尤其是它的函数作用域和变量提升的特性容易导致代码出错。</strong></li>
 </ul>
-<h2 id="️es6-箭头函数能当构造函数吗" tabindex="-1"><a class="header-anchor" href="#️es6-箭头函数能当构造函数吗"><span>️ES6 箭头函数能当构造函数吗？</span></a></h2>
+<h2 id="️7、es6-箭头函数能当构造函数吗" tabindex="-1"><a class="header-anchor" href="#️7、es6-箭头函数能当构造函数吗"><span>️7、ES6 箭头函数能当构造函数吗？</span></a></h2>
 <h3 id="es6-箭头函数能当构造函数吗" tabindex="-1"><a class="header-anchor" href="#es6-箭头函数能当构造函数吗"><span><strong>ES6 箭头函数能当构造函数吗？</strong></span></a></h3>
 <p>ES6 引入的箭头函数（Arrow Function）是一个简洁的函数表达式，语法上比传统的函数表达式更为简洁。它通常用于简化函数的定义，特别是在没有 <code v-pre>this</code> 绑定的情况下。然而，<strong>箭头函数不能当构造函数</strong>，也不能使用 <code v-pre>new</code> 来实例化对象。下面是对这一问题的详细解释：</p>
 <h3 id="_1-为什么箭头函数不能作为构造函数" tabindex="-1"><a class="header-anchor" href="#_1-为什么箭头函数不能作为构造函数"><span><strong>1. 为什么箭头函数不能作为构造函数？</strong></span></a></h3>
@@ -987,7 +987,7 @@
 <li><strong>传统函数表达式</strong> 和 <strong><code v-pre>class</code> 语法</strong>：可以作为构造函数，支持 <code v-pre>new</code> 关键字来实例化对象。</li>
 </ul>
 <p>因此，<strong>箭头函数不能作为构造函数</strong>，并且如果你希望使用构造函数创建实例，应该使用普通的函数声明或 ES6 的 <code v-pre>class</code> 语法。</p>
-<h2 id="es6-箭头函数和普通函数有什么区别" tabindex="-1"><a class="header-anchor" href="#es6-箭头函数和普通函数有什么区别"><span>ES6 箭头函数和普通函数有什么区别？</span></a></h2>
+<h2 id="_8、es6-箭头函数和普通函数有什么区别" tabindex="-1"><a class="header-anchor" href="#_8、es6-箭头函数和普通函数有什么区别"><span>8、ES6 箭头函数和普通函数有什么区别？</span></a></h2>
 <h3 id="总结表格" tabindex="-1"><a class="header-anchor" href="#总结表格"><span><strong>总结表格</strong></span></a></h3>
 <table>
 <thead>

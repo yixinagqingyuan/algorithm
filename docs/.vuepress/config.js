@@ -20,8 +20,16 @@ export default defineUserConfig({
         text: '复习指南',
         children: [
           {
+            text: '基础真题',
+            link: '/review/Foundation.md',
+          },
+          {
             text: 'HTML',
             link: '/review/HTML.md',
+          },
+          {
+            text: 'h5',
+            link: '/review/h5.md',
           },
           {
             text: 'CSS',

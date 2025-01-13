@@ -1,6 +1,8 @@
-# Typescript
+<!-- @format -->
 
-##  什么是 TypeScript 的对象类型？怎么定义对象类型？
+# Typescript 热门考题
+
+## 1、什么是 TypeScript 的对象类型？怎么定义对象类型？
 
 ### **TypeScript 的对象类型**
 
@@ -18,10 +20,10 @@
    可以直接在类型声明时使用 `{}` 来定义对象类型。
 
    ```typescript
-   const person: { name: string, age: number } = {
+   const person: { name: string; age: number } = {
      name: 'Alice',
-     age: 30
-   };
+     age: 30,
+   }
    ```
 
    这里，`{ name: string, age: number }` 表示 `person` 对象必须具有 `name` 属性（类型为 `string`）和 `age` 属性（类型为 `number`）。
@@ -31,14 +33,14 @@
 
    ```typescript
    interface Person {
-     name: string;
-     age: number;
+     name: string
+     age: number
    }
 
    const person: Person = {
      name: 'Bob',
-     age: 25
-   };
+     age: 25,
+   }
    ```
 
    使用接口时，我们可以更方便地在多个地方复用 `Person` 类型。
@@ -48,14 +50,14 @@
 
    ```typescript
    type Person = {
-     name: string;
-     age: number;
-   };
+     name: string
+     age: number
+   }
 
    const person: Person = {
      name: 'Charlie',
-     age: 40
-   };
+     age: 40,
+   }
    ```
 
    类型别名类似于接口，但与接口不同的是，类型别名不支持扩展（继承）。
@@ -65,21 +67,21 @@
 
    ```typescript
    interface Person {
-     name: string;
-     age: number;
-     address?: string;  // 可选属性
+     name: string
+     age: number
+     address?: string // 可选属性
    }
 
    const person1: Person = {
      name: 'David',
-     age: 28
-   };
+     age: 28,
+   }
 
    const person2: Person = {
      name: 'Eva',
      age: 22,
-     address: '123 Main St'
-   };
+     address: '123 Main St',
+   }
    ```
 
 5. **只读属性**：
@@ -87,16 +89,16 @@
 
    ```typescript
    interface Person {
-     readonly name: string;
-     age: number;
+     readonly name: string
+     age: number
    }
 
    const person: Person = {
      name: 'Frank',
-     age: 35
-   };
+     age: 35,
+   }
 
-   person.name = 'George';  // 错误：不能修改只读属性
+   person.name = 'George' // 错误：不能修改只读属性
    ```
 
 6. **动态属性**：
@@ -104,13 +106,13 @@
 
    ```typescript
    interface Dictionary {
-     [key: string]: string;
+     [key: string]: string
    }
 
    const dictionary: Dictionary = {
      hello: 'world',
-     goodbye: 'everyone'
-   };
+     goodbye: 'everyone',
+   }
    ```
 
    这里，`[key: string]: string` 表示 `dictionary` 对象的属性名是字符串类型，且属性值也是字符串类型。
@@ -130,9 +132,7 @@
 
 使用这些方式可以帮助你更好地描述对象的结构，并在编写 TypeScript 代码时提供更强的类型安全性和提示。
 
-
-## TypeScript 有哪些常用类型？
-
+## 2、TypeScript 有哪些常用类型？
 
 在 **TypeScript** 中，有许多内建的基础类型用于表示不同的数据结构。TypeScript 的类型系统是基于 JavaScript 的，并通过类型系统来增强代码的可读性、可靠性和可维护性。以下是一些常用的 TypeScript 类型：
 
@@ -143,37 +143,37 @@
 - **`number`**：表示数值类型，可以是整数或浮点数。
 
   ```typescript
-  let age: number = 25;
-  let price: number = 19.99;
+  let age: number = 25
+  let price: number = 19.99
   ```
 
 - **`string`**：表示字符串类型。
 
   ```typescript
-  let name: string = 'Alice';
-  let greeting: string = 'Hello, world!';
+  let name: string = 'Alice'
+  let greeting: string = 'Hello, world!'
   ```
 
 - **`boolean`**：表示布尔值（`true` 或 `false`）。
 
   ```typescript
-  let isActive: boolean = true;
-  let isCompleted: boolean = false;
+  let isActive: boolean = true
+  let isCompleted: boolean = false
   ```
 
 - **`void`**：表示没有返回值的类型，通常用于函数没有返回值的情况。
 
   ```typescript
   function logMessage(message: string): void {
-    console.log(message);
+    console.log(message)
   }
   ```
 
 - **`null` 和 `undefined`**：分别表示空值和未定义的值。默认情况下，`null` 和 `undefined` 是不同的类型，但可以通过 `--strictNullChecks` 配置来使它们的使用更加严格。
 
   ```typescript
-  let nothing: null = null;
-  let notDefined: undefined = undefined;
+  let nothing: null = null
+  let notDefined: undefined = undefined
   ```
 
 ---
@@ -183,8 +183,8 @@
 - **`Array`**：表示数组类型。可以使用 `Array<类型>` 或 `类型[]` 来定义数组。
 
   ```typescript
-  let numbers: number[] = [1, 2, 3, 4];
-  let fruits: Array<string> = ['apple', 'banana', 'orange'];
+  let numbers: number[] = [1, 2, 3, 4]
+  let fruits: Array<string> = ['apple', 'banana', 'orange']
   ```
 
 ---
@@ -194,7 +194,7 @@
 - **`tuple`**：表示一个固定长度和类型的数组。不同于普通数组，元组可以包含不同类型的元素。
 
   ```typescript
-  let person: [string, number] = ['Alice', 30];  // 第一项是字符串，第二项是数字
+  let person: [string, number] = ['Alice', 30] // 第一项是字符串，第二项是数字
   ```
 
 ---
@@ -208,19 +208,19 @@
     Up = 1,
     Down,
     Left,
-    Right
+    Right,
   }
 
-  let move: Direction = Direction.Up;  // move 的值是 1
+  let move: Direction = Direction.Up // move 的值是 1
   ```
 
   也可以使用字符串枚举：
-  
+
   ```typescript
   enum Color {
     Red = 'RED',
     Green = 'GREEN',
-    Blue = 'BLUE'
+    Blue = 'BLUE',
   }
   ```
 
@@ -231,9 +231,9 @@
 - **`any`**：表示任何类型的值，适用于不确定类型的情况。使用 `any` 时，TypeScript 会禁用对该变量的类型检查。
 
   ```typescript
-  let variable: any = 42;
-  variable = 'Hello, world!';
-  variable = true;
+  let variable: any = 42
+  variable = 'Hello, world!'
+  variable = true
   ```
 
   **注意**：使用 `any` 会丧失 TypeScript 类型检查的优势，应尽量避免过多使用。
@@ -245,10 +245,10 @@
 - **`unknown`**：表示未知类型。与 `any` 类似，但使用 `unknown` 时，必须先进行类型检查或类型断言，才能对其进行操作。
 
   ```typescript
-  let result: unknown = 30;
-  
+  let result: unknown = 30
+
   if (typeof result === 'number') {
-    console.log(result.toFixed(2));  // 需要类型检查
+    console.log(result.toFixed(2)) // 需要类型检查
   }
   ```
 
@@ -261,7 +261,7 @@
 - **`object`**：表示非原始类型的值（即非 `number`、`string`、`boolean`、`symbol`、`null`、`undefined`）。可以用来定义对象类型。
 
   ```typescript
-  let person: object = { name: 'Alice', age: 30 };
+  let person: object = { name: 'Alice', age: 30 }
   ```
 
   **注意**：`object` 类型不能直接访问对象的属性，需要通过类型断言或者进一步的类型定义。
@@ -273,15 +273,15 @@
 - **`type`**：可以使用 `type` 创建复杂的类型别名，结合联合类型、交叉类型、映射类型等实现更复杂的类型。
 
   ```typescript
-  type StringOrNumber = string | number;
-  let value: StringOrNumber = 42;
-  value = 'Hello';
+  type StringOrNumber = string | number
+  let value: StringOrNumber = 42
+  value = 'Hello'
 
   type Person = {
-    name: string;
-    age: number;
-  };
-  let person: Person = { name: 'Alice', age: 30 };
+    name: string
+    age: number
+  }
+  let person: Person = { name: 'Alice', age: 30 }
   ```
 
 ---
@@ -291,14 +291,14 @@
 - **联合类型**：通过 `|` 表示一个变量可以是多种类型中的任意一种。
 
   ```typescript
-  let id: string | number = 123;
-  id = 'ABC';
+  let id: string | number = 123
+  id = 'ABC'
 
   function greet(name: string | string[]) {
     if (typeof name === 'string') {
-      console.log(`Hello, ${name}`);
+      console.log(`Hello, ${name}`)
     } else {
-      console.log(`Hello, ${name.join(', ')}`);
+      console.log(`Hello, ${name.join(', ')}`)
     }
   }
   ```
@@ -311,19 +311,19 @@
 
   ```typescript
   type Employee = {
-    name: string;
-    salary: number;
-  };
+    name: string
+    salary: number
+  }
 
   type Manager = Employee & {
-    department: string;
-  };
+    department: string
+  }
 
   const manager: Manager = {
     name: 'Alice',
     salary: 80000,
-    department: 'HR'
-  };
+    department: 'HR',
+  }
   ```
 
 ---
@@ -333,15 +333,15 @@
 - **`as`**：类型断言用于告诉 TypeScript 我们知道某个变量的类型是什么。类型断言类似于强制类型转换。
 
   ```typescript
-  let value: unknown = 'Hello, TypeScript!';
-  let str: string = value as string;
+  let value: unknown = 'Hello, TypeScript!'
+  let str: string = value as string
   ```
 
   或者：
 
   ```typescript
-  let value: unknown = 'Hello, TypeScript!';
-  let str = <string>value;  // 另一种语法
+  let value: unknown = 'Hello, TypeScript!'
+  let str = <string>value // 另一种语法
   ```
 
 ---
@@ -352,20 +352,20 @@
 
   ```typescript
   function identity<T>(arg: T): T {
-    return arg;
+    return arg
   }
 
-  let result = identity<string>('Hello, world!');
+  let result = identity<string>('Hello, world!')
   ```
 
   泛型不仅限于函数，也可以应用于接口和类：
 
   ```typescript
   interface Box<T> {
-    value: T;
+    value: T
   }
 
-  let box: Box<number> = { value: 42 };
+  let box: Box<number> = { value: 42 }
   ```
 
 ---

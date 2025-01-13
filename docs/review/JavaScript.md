@@ -1,7 +1,6 @@
 <!-- @format -->
 
-# javascript
-
+# javascript 热门考题
 
 ## 1、为什么 JavaScript 中 0.1 + 0.2 !== 0.3，如何让其相等？
 
@@ -391,7 +390,7 @@ console.log(Object.prototype.toString.call(value)) // "[object Null]"
 - 这种行为虽然不符合直觉，但已成为语言规范的一部分。
 - 为了准确判断 `null`，建议使用严格等于 `=== null` 或 `Object.prototype.toString` 方法。
 
-## JavaScript 中 null 和 undefined 的区别是什么？
+## 4、JavaScript 中 null 和 undefined 的区别是什么？
 
 ### **`null` 和 `undefined` 的区别**
 
@@ -541,7 +540,7 @@ console.log(typeof null) // 'object'
 - **用 `undefined` 表示变量未初始化或未定义。**
 - **用 `null` 显式表示空值或无效值。**
 
-## 说说你对 JS 作用域的理解？
+## 5、说说你对 JS 作用域的理解？
 
 ### **JavaScript 作用域的理解**
 
@@ -727,7 +726,7 @@ JavaScript 的作用域是一个决定变量访问权限的机制。它影响着
 
 理解 JavaScript 的作用域对于避免变量污染、内存泄漏和其他错误非常重要。
 
-## let、const 和 var 的区别
+## 6、let、const 和 var 的区别
 
 ### **`let`、`const` 和 `var` 的区别**
 
@@ -882,7 +881,7 @@ JavaScript 的作用域是一个决定变量访问权限的机制。它影响着
 - **现代 JavaScript 中推荐使用 `let` 和 `const`，尤其是 `const`，因为它能帮助你避免不必要的修改，提高代码的可维护性和可读性。**
 - **`var` 已经不推荐使用，尤其是它的函数作用域和变量提升的特性容易导致代码出错。**
 
-## ️ES6 箭头函数能当构造函数吗？
+## ️7、ES6 箭头函数能当构造函数吗？
 
 ### **ES6 箭头函数能当构造函数吗？**
 
@@ -951,7 +950,7 @@ console.log(p.name) // 输出: Alice
 
 因此，**箭头函数不能作为构造函数**，并且如果你希望使用构造函数创建实例，应该使用普通的函数声明或 ES6 的 `class` 语法。
 
-## ES6 箭头函数和普通函数有什么区别？
+## 8、ES6 箭头函数和普通函数有什么区别？
 
 ### **总结表格**
 

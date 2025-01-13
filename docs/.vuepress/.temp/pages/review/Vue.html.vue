@@ -1,6 +1,6 @@
 <template><div><!-- @format -->
 <h1 id="vue-热门考题" tabindex="-1"><a class="header-anchor" href="#vue-热门考题"><span>vue 热门考题</span></a></h1>
-<h2 id="什么是-vue-中的-slot-它有什么作用" tabindex="-1"><a class="header-anchor" href="#什么是-vue-中的-slot-它有什么作用"><span>什么是 Vue 中的 slot？它有什么作用？</span></a></h2>
+<h2 id="_1、什么是-vue-中的-slot-它有什么作用" tabindex="-1"><a class="header-anchor" href="#_1、什么是-vue-中的-slot-它有什么作用"><span>1、什么是 Vue 中的 slot？它有什么作用？</span></a></h2>
 <p>在 Vue.js 中，<code v-pre>slot</code> 是一种用来分发内容的机制，允许开发者在父组件中定义内容，并将其插入到子组件的特定位置。这种机制使得组件更加灵活和可复用。</p>
 <h3 id="作用" tabindex="-1"><a class="header-anchor" href="#作用"><span>作用：</span></a></h3>
 <ol>
@@ -102,7 +102,7 @@
 <li><strong><code v-pre>slot</code> 是 Vue 中一种强大的内容分发机制，支持父子组件之间的灵活内容传递</strong>。</li>
 <li>默认插槽、具名插槽和作用域插槽适应了多种需求，使得组件开发更加灵活和动态。</li>
 </ul>
-<h2 id="在-vue-渲染模板时-如何保留模板中的-html-注释" tabindex="-1"><a class="header-anchor" href="#在-vue-渲染模板时-如何保留模板中的-html-注释"><span>在 Vue 渲染模板时，如何保留模板中的 HTML 注释？</span></a></h2>
+<h2 id="_2、在-vue-渲染模板时-如何保留模板中的-html-注释" tabindex="-1"><a class="header-anchor" href="#_2、在-vue-渲染模板时-如何保留模板中的-html-注释"><span>2、在 Vue 渲染模板时，如何保留模板中的 HTML 注释？</span></a></h2>
 <p>在 Vue.js 中，默认情况下，编译模板时会移除 HTML 注释。如果你想要保留这些注释，可以使用 <code v-pre>v-html</code> 指令来手动插入包含注释的 HTML 字符串，或者使用自定义的渲染函数（render function）和虚拟 DOM。</p>
 <p>但是，直接在单文件组件（SFCs）或字符串模板中写的 HTML 注释会被编译过程移除。这是因为 Vue 的模板编译器默认配置是不保留注释节点的。</p>
 <p>如果你想在开发过程中留下注释用于调试或其他目的，你可以通过以下几种方式实现：</p>
@@ -131,7 +131,7 @@
 </li>
 </ol>
 <p>请记住，HTML 注释通常不会对用户可见，而且对于性能的影响很小，但在生产环境中可能还是希望移除不必要的注释以减少页面体积。因此，确保你的选择符合项目的实际需求。</p>
-<h2 id="什么是前端异步编程-请介绍一下-promise、async-await-在-javascript-中的作用及用法。" tabindex="-1"><a class="header-anchor" href="#什么是前端异步编程-请介绍一下-promise、async-await-在-javascript-中的作用及用法。"><span>什么是前端异步编程？请介绍一下 Promise、async/await 在 JavaScript 中的作用及用法。</span></a></h2>
+<h2 id="_3、什么是前端异步编程-请介绍一下-promise、async-await-在-javascript-中的作用及用法。" tabindex="-1"><a class="header-anchor" href="#_3、什么是前端异步编程-请介绍一下-promise、async-await-在-javascript-中的作用及用法。"><span>3、什么是前端异步编程？请介绍一下 Promise、async/await 在 JavaScript 中的作用及用法。</span></a></h2>
 <p>前端异步编程是指在程序运行过程中，可以执行某些耗时的操作（如网络请求、文件读取或定时器）而不阻塞主线程，使用户界面依然保持响应的编程方式。在 JavaScript 中，异步操作是非常常见的，尤其是在处理 I/O 操作时（如 AJAX 请求、文件读取等）。</p>
 <h3 id="异步编程的典型方案-promise-和-async-await" tabindex="-1"><a class="header-anchor" href="#异步编程的典型方案-promise-和-async-await"><span>异步编程的典型方案：Promise 和 async/await</span></a></h3>
 <h5 id="_1-回调函数-callback-functions" tabindex="-1"><a class="header-anchor" href="#_1-回调函数-callback-functions"><span><strong>1.回调函数（Callback Functions）</strong>：</span></a></h5>
@@ -287,7 +287,7 @@
 <li><strong>async/await</strong>：对 Promise 进行了封装，提供了更加直观的语法，适合复杂的异步逻辑。</li>
 <li><strong>实际开发建议</strong>：推荐使用 <code v-pre>async/await</code>，并结合 <code v-pre>try/catch</code> 处理错误，代码更简洁且易于维护。</li>
 </ol>
-<h2 id="如何基于-vue-router-实现动态切换导航栏标题-请详细描述一下实现的过程。" tabindex="-1"><a class="header-anchor" href="#如何基于-vue-router-实现动态切换导航栏标题-请详细描述一下实现的过程。"><span>如何基于 Vue Router 实现动态切换导航栏标题？请详细描述一下实现的过程。</span></a></h2>
+<h2 id="_4、如何基于-vue-router-实现动态切换导航栏标题-请详细描述一下实现的过程。" tabindex="-1"><a class="header-anchor" href="#_4、如何基于-vue-router-实现动态切换导航栏标题-请详细描述一下实现的过程。"><span>4、如何基于 Vue Router 实现动态切换导航栏标题？请详细描述一下实现的过程。</span></a></h2>
 <p>在 Vue 应用中，使用 <strong>Vue Router</strong> 可以轻松实现根据当前路由动态切换导航栏标题。这种需求在多页面应用中非常常见，比如在不同的页面中显示不同的标题。</p>
 <p>以下是实现动态切换导航栏标题的详细步骤：</p>
 <hr>
@@ -409,7 +409,7 @@
 <li><strong>SSR 支持</strong>：在服务端渲染（SSR）中，也可以通过路由的 <code v-pre>meta</code> 字段设置页面标题。</li>
 </ul>
 <p>通过上述步骤，你可以实现一个基于 Vue Router 动态切换导航栏标题的完整解决方案。</p>
-<h2 id="项目前端使用了-vant-ui-组件库-请列举几个你用到的-vant-ui-组件并介绍它们的用途" tabindex="-1"><a class="header-anchor" href="#项目前端使用了-vant-ui-组件库-请列举几个你用到的-vant-ui-组件并介绍它们的用途"><span>项目前端使用了 Vant UI 组件库，请列举几个你用到的 Vant UI 组件并介绍它们的用途？</span></a></h2>
+<h2 id="_5、项目前端使用了-vant-ui-组件库-请列举几个你用到的-vant-ui-组件并介绍它们的用途" tabindex="-1"><a class="header-anchor" href="#_5、项目前端使用了-vant-ui-组件库-请列举几个你用到的-vant-ui-组件并介绍它们的用途"><span>5、项目前端使用了 Vant UI 组件库，请列举几个你用到的 Vant UI 组件并介绍它们的用途？</span></a></h2>
 <p>Vant 是一个轻量、简洁的移动端 Vue 组件库，由有赞前端团队开发。它提供了丰富的组件，帮助开发者快速搭建高性能的移动应用界面。以下是几个常见的 Vant UI 组件及其用途：</p>
 <ol>
 <li>
@@ -474,7 +474,7 @@
 </li>
 </ol>
 <p>这些只是 Vant 中的一部分组件，实际上它还涵盖了更多种类的组件以适应各种业务需求。每个组件都设计得非常灵活，可以根据实际应用场景调整其属性和样式。此外，Vant 还提供了详细的文档和示例代码，使得开发者能够快速上手并高效地构建应用。</p>
-<h2 id="请介绍一下-vue-3-的新特性和与-vue-2-相比有哪些变化" tabindex="-1"><a class="header-anchor" href="#请介绍一下-vue-3-的新特性和与-vue-2-相比有哪些变化"><span>请介绍一下 Vue 3 的新特性和与 Vue 2 相比有哪些变化？</span></a></h2>
+<h2 id="_6、请介绍一下-vue-3-的新特性和与-vue-2-相比有哪些变化" tabindex="-1"><a class="header-anchor" href="#_6、请介绍一下-vue-3-的新特性和与-vue-2-相比有哪些变化"><span>6、请介绍一下 Vue 3 的新特性和与 Vue 2 相比有哪些变化？</span></a></h2>
 <p><strong>Vue 3</strong> 是对 Vue 2 的全面升级，不仅引入了新的功能和性能优化，还重新设计了架构，以便更好地支持大型应用程序的开发。以下是 Vue 3 的主要新特性以及与 Vue 2 的关键变化：</p>
 <hr>
 <h3 id="_1-性能提升" tabindex="-1"><a class="header-anchor" href="#_1-性能提升"><span>1. <strong>性能提升</strong></span></a></h3>
@@ -663,7 +663,7 @@
 <li>新项目推荐直接使用 Vue 3。</li>
 <li>旧项目可以根据需要逐步迁移至 Vue 3，官方提供了<a href="https://v3.vuejs.org/guide/migration/introduction.html" target="_blank" rel="noopener noreferrer">迁移指南</a>。</li>
 </ul>
-<h2 id="vue-js-中的组件通信方式有哪些" tabindex="-1"><a class="header-anchor" href="#vue-js-中的组件通信方式有哪些"><span>Vue.js 中的组件通信方式有哪些？</span></a></h2>
+<h2 id="_7、vue-js-中的组件通信方式有哪些" tabindex="-1"><a class="header-anchor" href="#_7、vue-js-中的组件通信方式有哪些"><span>7、Vue.js 中的组件通信方式有哪些？</span></a></h2>
 <h3 id="vue2-0-组件通信方式" tabindex="-1"><a class="header-anchor" href="#vue2-0-组件通信方式"><span>vue2.0 组件通信方式</span></a></h3>
 <p>在 Vue.js 中，组件之间的通信是构建复杂用户界面的核心部分。Vue 提供了多种机制来实现组件间的通信，包括父子组件间的通信、兄弟组件间的通信以及跨层级的通信。以下是几种常见的组件通信方式：</p>
 <h3 id="_1-props-和-events" tabindex="-1"><a class="header-anchor" href="#_1-props-和-events"><span>1. Props 和 Events</span></a></h3>
@@ -1117,7 +1117,7 @@
 <li><strong>Composition API</strong>：<code v-pre>reactive</code> 和 <code v-pre>ref</code>。</li>
 </ul>
 <p>根据实际需求，选择合适的通信方式来组织组件间的交互。</p>
-<h2 id="vue-diff-算法的原理是什么" tabindex="-1"><a class="header-anchor" href="#vue-diff-算法的原理是什么"><span>vue diff 算法的原理是什么？</span></a></h2>
+<h2 id="_8、vue-diff-算法的原理是什么" tabindex="-1"><a class="header-anchor" href="#_8、vue-diff-算法的原理是什么"><span>8、vue diff 算法的原理是什么？</span></a></h2>
 <p>在 Vue 中，<strong>DIFF 算法</strong>用于高效地更新虚拟 DOM（Virtual DOM）和实际 DOM 的差异。Vue 通过该算法来最小化页面重新渲染的开销，提高应用性能。Vue 的 DIFF 算法基于 <strong>O(n) 时间复杂度</strong>，大大减少了传统的虚拟 DOM 比较的计算量，具体来说，Vue 在比对时采用了<strong>逐层比较</strong>和<strong>最小化重渲染</strong>的策略。</p>
 <h3 id="_1-vue-diff-算法的核心原理" tabindex="-1"><a class="header-anchor" href="#_1-vue-diff-算法的核心原理"><span><strong>1. Vue DIFF 算法的核心原理</strong></span></a></h3>
 <p>Vue 的 DIFF 算法通过以下几种策略来高效地更新 DOM：</p>
@@ -1268,7 +1268,7 @@
 <li>Vue 使用时间复杂度为 <strong>O(n log n)</strong> 的高效算法来计算 LIS，保证了虚拟 DOM 比较的性能。</li>
 <li>在项目中，使用 <code v-pre>key</code> 属性显得尤为重要，因为它能够帮助 Vue 准确识别和比较节点，从而更好地发挥 DIFF 算法和 LIS 的优化效果。</li>
 </ol>
-<h2 id="如果要实现一个-vue3-的弹窗组件-你会如何设计" tabindex="-1"><a class="header-anchor" href="#如果要实现一个-vue3-的弹窗组件-你会如何设计"><span>如果要实现一个 Vue3 的弹窗组件，你会如何设计？</span></a></h2>
+<h2 id="_9、如果要实现一个-vue3-的弹窗组件-你会如何设计" tabindex="-1"><a class="header-anchor" href="#_9、如果要实现一个-vue3-的弹窗组件-你会如何设计"><span>9、如果要实现一个 Vue3 的弹窗组件，你会如何设计？</span></a></h2>
 <p>实现一个 <strong>Vue 3 弹窗组件</strong>，需要考虑以下几个方面：弹窗的通用性、灵活性、可复用性以及易维护性。以下是设计弹窗组件的完整思路和实现步骤：</p>
 <hr>
 <h3 id="_1-功能需求分析" tabindex="-1"><a class="header-anchor" href="#_1-功能需求分析"><span><strong>1. 功能需求分析</strong></span></a></h3>
@@ -1557,7 +1557,7 @@
 <li><strong>动画优化</strong>：支持更多过渡效果（如 <code v-pre>fade</code>、<code v-pre>slide</code>）。</li>
 </ul>
 <p>此设计思路保证了弹窗的通用性和灵活性，同时代码易读、易扩展，可适用于大多数项目需求。</p>
-<h2 id="vue-的-template-标签有什么用" tabindex="-1"><a class="header-anchor" href="#vue-的-template-标签有什么用"><span>Vue 的 template 标签有什么用？</span></a></h2>
+<h2 id="_10、vue-的-template-标签有什么用" tabindex="-1"><a class="header-anchor" href="#_10、vue-的-template-标签有什么用"><span>10、Vue 的 template 标签有什么用？</span></a></h2>
 <p>在 Vue 中，<code v-pre>&lt;template&gt;</code> 标签是一个专门用于定义组件模板的容器标签。它不会被渲染为实际的 DOM 元素，而是作为 Vue 的模板编译系统的一部分，用于组织和编写模板代码。以下是 <code v-pre>template</code> 标签的主要作用和特点：</p>
 <hr>
 <h3 id="_1-主要作用" tabindex="-1"><a class="header-anchor" href="#_1-主要作用"><span><strong>1. 主要作用</strong></span></a></h3>
@@ -1696,7 +1696,7 @@
 <hr>
 <h3 id="总结-4" tabindex="-1"><a class="header-anchor" href="#总结-4"><span><strong>总结</strong></span></a></h3>
 <p><code v-pre>&lt;template&gt;</code> 标签是 Vue 模板设计中的重要工具，它提供了一个逻辑分组的容器，用于定义组件的结构、逻辑分支以及动态渲染，而不会生成多余的 DOM 元素。在实际开发中，合理使用 <code v-pre>&lt;template&gt;</code> 可以让代码更加简洁和高效。</p>
-<h2 id="vue2-和-vue3-区别" tabindex="-1"><a class="header-anchor" href="#vue2-和-vue3-区别"><span>vue2 和 vue3 区别</span></a></h2>
+<h2 id="_11、vue2-和-vue3-区别" tabindex="-1"><a class="header-anchor" href="#_11、vue2-和-vue3-区别"><span>11、vue2 和 vue3 区别</span></a></h2>
 <table>
 <thead>
 <tr>

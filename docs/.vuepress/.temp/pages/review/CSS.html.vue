@@ -239,33 +239,72 @@
 </ul>
 <p><strong>注意</strong>：虽然现代浏览器对 <code v-pre>DOCTYPE</code> 的要求比过去宽松，但为了最佳实践和兼容性，仍然需要正确声明。</p>
 <h2 id="_4、html-的-script-标签中-defer-和-async-有什么区别" tabindex="-1"><a class="header-anchor" href="#_4、html-的-script-标签中-defer-和-async-有什么区别"><span>4、HTML 的 script 标签中 defer 和 async 有什么区别？</span></a></h2>
-<p>在 HTML 中，<code v-pre>&lt;script&gt;</code> 标签的 <code v-pre>defer</code> 和 <code v-pre>async</code> 属性用来控制脚本的加载和执行方式，它们的区别体现在脚本加载的<strong>顺序</strong>和<strong>执行时机</strong>上。</p>
-<hr>
+<h3 id="总结与对比" tabindex="-1"><a class="header-anchor" href="#总结与对比"><span><strong>总结与对比</strong></span></a></h3>
 <table>
 <thead>
 <tr>
 <th><strong>属性</strong></th>
-<th><strong>加载过程</strong></th>
-<th><strong>执行时机</strong></th>
-<th><strong>执行顺序</strong></th>
+<th><strong>src</strong></th>
+<th><strong>href</strong></th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><strong>defer</strong></td>
-<td>脚本与 HTML 同时加载（异步加载）</td>
-<td>HTML 完全解析后才执行</td>
-<td>按脚本在 HTML 中的<strong>顺序</strong>执行</td>
+<td><strong>全称</strong></td>
+<td>Source（来源）</td>
+<td>Hyperreference（超链接）</td>
 </tr>
 <tr>
-<td><strong>async</strong></td>
-<td>脚本与 HTML 同时加载（异步加载）</td>
-<td>脚本加载完成后立即执行</td>
-<td><strong>加载完成的顺序</strong>（不保证按照 HTML 顺序）</td>
+<td><strong>功能</strong></td>
+<td>嵌入和加载资源</td>
+<td>定义资源路径或链接</td>
+</tr>
+<tr>
+<td><strong>使用场景</strong></td>
+<td><code v-pre>&lt;script&gt;</code>、<code v-pre>&lt;img&gt;</code>、<code v-pre>&lt;iframe&gt;</code> 等嵌入式标签</td>
+<td><code v-pre>&lt;a&gt;</code>、<code v-pre>&lt;link&gt;</code> 等关联性标签</td>
+</tr>
+<tr>
+<td><strong>阻塞性</strong></td>
+<td>阻塞页面的加载和解析</td>
+<td>不阻塞解析，但可能阻塞渲染（如 CSS）</td>
+</tr>
+<tr>
+<td><strong>资源角色</strong></td>
+<td>资源是文档的内容一部分</td>
+<td>资源是参考或关联的外部资源</td>
 </tr>
 </tbody>
 </table>
 <hr>
+<h3 id="注意事项与最佳实践" tabindex="-1"><a class="header-anchor" href="#注意事项与最佳实践"><span><strong>注意事项与最佳实践</strong></span></a></h3>
+<h4 id="_1-src-的注意事项" tabindex="-1"><a class="header-anchor" href="#_1-src-的注意事项"><span><strong>(1) <code v-pre>src</code> 的注意事项</strong></span></a></h4>
+<ul>
+<li>对于 <code v-pre>&lt;script&gt;</code> 标签，如果脚本不是必须阻塞的，可以使用 <code v-pre>async</code> 或 <code v-pre>defer</code> 属性，避免页面加载阻塞。<div class="language-html line-numbers-mode" data-highlighter="prismjs" data-ext="html" data-title="html"><pre v-pre><code><span class="line"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>script</span> <span class="token attr-name">src</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>app.js<span class="token punctuation">"</span></span> <span class="token attr-name">defer</span><span class="token punctuation">></span></span><span class="token script"></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>script</span><span class="token punctuation">></span></span></span>
+<span class="line"></span></code></pre>
+<div class="line-numbers" aria-hidden="true" style="counter-reset:line-number 0"><div class="line-number"></div></div></div></li>
+<li>图片加载时，确保 <code v-pre>alt</code> 属性提供描述性文本，提升无障碍性和 SEO。</li>
+</ul>
+<h4 id="_2-href-的注意事项" tabindex="-1"><a class="header-anchor" href="#_2-href-的注意事项"><span><strong>(2) <code v-pre>href</code> 的注意事项</strong></span></a></h4>
+<ul>
+<li>
+<p>对于 <code v-pre>&lt;link&gt;</code> 标签引入 CSS 文件，应优先放在 <code v-pre>&lt;head&gt;</code> 中，以避免样式阻塞页面渲染。</p>
+</li>
+<li>
+<p>对于 <code v-pre>&lt;a&gt;</code> 标签：</p>
+<ul>
+<li>确保链接的 <code v-pre>href</code> 属性有效（如避免使用 <code v-pre>#</code>，除非有意指向页面顶部）。</li>
+<li>使用语义化描述的超链接文本，提升可用性和 SEO。</li>
+</ul>
+</li>
+<li>
+<p><strong><code v-pre>src</code> 是用来加载嵌入到当前页面的资源</strong>，如 JavaScript 文件、图像等，是内容的一部分。</p>
+</li>
+<li>
+<p><strong><code v-pre>href</code> 是用来指定外部资源的路径或超链接</strong>，如跳转页面、加载 CSS 文件等，是关联性资源。</p>
+</li>
+</ul>
+<p>理解两者的不同，有助于正确选择属性，优化页面性能和用户体验。</p>
 </div></template>
 
 

@@ -51,6 +51,22 @@ export default defineUserConfig({
             text: 'React',
             link: '/review/React.md',
           },
+          {
+            text: '性能优化',
+            link: '/review/Performanceoptimization.md',
+          },
+          {
+            text: '工程化',
+            link: '/review/Engineering.md',
+          },
+          {
+            text: '设计模式',
+            link: '/review/DesignPatterns.md',
+          },
+          {
+            text: 'node',
+            link: '/review/node.md',
+          },
         ],
       },
       {

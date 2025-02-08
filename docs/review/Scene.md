@@ -1797,3 +1797,591 @@ async function loadChatHistory() {
 ### **四、总结**
 
 通过 WebSocket 可以高效实现实时聊天功能。前端负责建立连接、发送消息、渲染 UI，后端负责管理连接、消息广播和用户状态。结合消息通知、未读消息标记、聊天记录持久化等功能，可以实现一个完整的多用户实时聊天系统。
+
+设计一个前端日志埋点 SDK 需要综合考虑性能、扩展性、易用性和数据可靠性。以下是详细的设计思路和实现方案：
+
+---
+
+### 一、核心设计目标
+1. **低侵入性**：对业务代码影响最小化。
+2. **高性能**：减少对页面性能的影响。
+3. **高可靠性**：确保数据不丢失。
+4. **易扩展**：支持自定义埋点和插件。
+5. **隐私安全**：支持敏感数据过滤。
+
+---
+
+### 二、架构设计
+```bash
+├── Core
+│   ├── Logger        # 日志主入口
+│   ├── Collector     # 数据采集模块
+│   ├── Processor     # 数据处理模块
+│   ├── Sender        # 数据发送模块
+│   └── Storage       # 本地缓存模块
+├── Plugins           # 插件系统
+│   ├── ErrorTracker  # 错误监控
+│   ├── PerfTracker   # 性能监控
+│   └── BehaviorTracker# 用户行为监控
+└── Utils             # 工具库
+```
+
+---
+
+### 三、核心模块实现
+
+#### 1. 数据采集模块（Collector）
+负责自动和手动采集数据。
+```javascript
+class Collector {
+  constructor() {
+    this.autoCollect();
+  }
+
+  // 自动采集
+  autoCollect() {
+    this.trackErrors();    // JS错误、资源加载错误
+    this.trackPerformance(); // 性能指标（LCP, FCP, FID等）
+    this.trackBehaviors(); // 用户行为（点击、滚动、路由跳转）
+  }
+
+  // 手动埋点API
+  track(event, payload) {
+    this.process({ type: 'CUSTOM', event, ...payload });
+  }
+}
+```
+
+#### 2. 数据处理模块（Processor）
+负责数据清洗、过滤和格式化。
+```javascript
+class Processor {
+  pipe(data) {
+    return this.compose(
+      this.addEnvInfo,     // 添加环境信息
+      this.filterSensitiveData, // 敏感数据过滤
+      this.sampling(0.1),  // 采样率控制
+      this.throttle(500)   // 节流控制
+    )(data);
+  }
+}
+```
+
+#### 3. 数据发送模块（Sender）
+负责数据上报，优先使用高性能方案。
+```javascript
+class Sender {
+  send(data) {
+    // 优先使用 sendBeacon
+    if (navigator.sendBeacon) {
+      const blob = new Blob([JSON.stringify(data)]);
+      navigator.sendBeacon(endpoint, blob);
+    } else {
+      // 降级方案：使用空图片请求
+      new Image().src = `${endpoint}?data=${encodeURIComponent(JSON.stringify(data))}`;
+    }
+  }
+}
+```
+
+#### 4. 本地缓存模块（Storage）
+负责数据缓存和重试机制。
+```javascript
+class Storage {
+  constructor() {
+    this.quota = 1000; // 最大缓存条目数
+    this.queue = new LruCache(this.quota);
+  }
+
+  async flush() {
+    if (navigator.onLine) {
+      while (this.queue.size > 0) {
+        await this.sendBatch(this.queue.pop(10)); // 批量发送
+      }
+    }
+  }
+}
+```
+
+---
+
+### 四、关键技术方案
+
+#### 1. 性能优化
+- **异步加载**：通过动态 `<script>` 标签加载 SDK。
+- **空闲上报**：使用 `requestIdleCallback` 调度任务。
+- **数据压缩**：采用 gzip + Protocol Buffers 二进制格式。
+- **差异化采样**：关键错误 100% 上报，行为数据动态采样。
+
+#### 2. 错误监控增强
+```javascript
+window.addEventListener('error', (e) => {
+  const isResourceError = e.target instanceof HTMLElement;
+  const stack = isResourceError ? null : e.error.stack;
+  
+  SDK.track('ERROR', {
+    type: isResourceError ? 'RESOURCE' : 'JS',
+    message: e.message,
+    stack: parseStack(stack), // 错误堆栈解析
+    filename: e.filename,
+    tagName: e.target.tagName
+  });
+}, true);
+```
+
+#### 3. 插件系统
+支持自定义插件扩展功能。
+```javascript
+class Plugin {
+  constructor(sdk) {
+    this.sdk = sdk;
+    this.init();
+  }
+}
+
+class PVPlugin extends Plugin {
+  init() {
+    window.addEventListener('hashchange', this.trackPV);
+    window.addEventListener('popstate', this.trackPV);
+  }
+  
+  trackPV() {
+    this.sdk.track('PAGE_VIEW', {
+      path: location.pathname,
+      params: parseQueryParams()
+    });
+  }
+}
+```
+
+#### 4. 隐私合规处理
+支持敏感数据过滤。
+```javascript
+const defaultMaskRules = {
+  password: true,
+  creditcard: (value) => value.replace(/\d{12}(\d{4})/, '**** **** **** $1')
+};
+
+function maskSensitiveData(data, rules) {
+  return deepWalk(data, (key, val) => {
+    if (rules[key]) return typeof rules[key] === 'function' 
+      ? rules[key](val) 
+      : '***';
+    return val;
+  });
+}
+```
+
+---
+
+### 五、性能指标对比
+
+| 方案 | 内存占用 | 网络消耗 | 兼容性 | 数据完整性 |
+|------|---------|---------|--------|-----------|
+| Beacon API | 低 | 中 | IE ❌ | 高 |
+| Image Pixel | 最低 | 低 | 全兼容 | 最低 |
+| XHR | 中 | 高 | IE10+ | 最高 |
+| WebSocket | 高 | 最低 | IE10+ | 高 |
+
+---
+
+### 六、接入示例
+```html
+<script>
+  window.__LOG_SDK_CONFIG__ = {
+    endpoint: "https://log.yourdomain.com",
+    appId: "YOUR_APP_ID",
+    plugins: [PerformancePlugin, ErrorPlugin],
+    sampling: {
+      error: 1.0,    // 错误全采集
+      click: 0.2    // 点击20%采样
+    }
+  };
+</script>
+<script async src="https://cdn.yourdomain.com/log-sdk.v2.min.js"></script>
+```
+
+---
+
+### 七、关键决策点
+1. **传输协议选择**：优先 Beacon API，降级到 Image 像素打点。
+2. **数据序列化**：JSON → Protocol Buffers（体积减少 60%）。
+3. **缓存策略**：LRU 缓存 + 指数退避重试。
+4. **错误隔离**：每个处理步骤使用 try/catch 包裹。
+5. **Tree-shaking**：按需加载插件，基础包保持 < 10KB。
+
+通过以上设计，可实现日亿级数据量的可靠采集，在 3G 网络下额外资源消耗 < 5%，CPU 峰值占用 < 3%，达到生产环境可用标准。
+
+
+## 你会如何设计前端日志埋点 SDK？
+
+设计一个前端日志埋点 SDK 需要综合考虑性能、扩展性、易用性和数据可靠性。以下是详细的设计思路和实现方案：
+
+---
+
+### 一、核心设计目标
+1. **低侵入性**：对业务代码影响最小化。
+2. **高性能**：减少对页面性能的影响。
+3. **高可靠性**：确保数据不丢失。
+4. **易扩展**：支持自定义埋点和插件。
+5. **隐私安全**：支持敏感数据过滤。
+
+---
+
+### 二、架构设计
+```bash
+├── Core
+│   ├── Logger        # 日志主入口
+│   ├── Collector     # 数据采集模块
+│   ├── Processor     # 数据处理模块
+│   ├── Sender        # 数据发送模块
+│   └── Storage       # 本地缓存模块
+├── Plugins           # 插件系统
+│   ├── ErrorTracker  # 错误监控
+│   ├── PerfTracker   # 性能监控
+│   └── BehaviorTracker# 用户行为监控
+└── Utils             # 工具库
+```
+
+---
+
+### 三、核心模块实现
+
+#### 1. 数据采集模块（Collector）
+负责自动和手动采集数据。
+```javascript
+class Collector {
+  constructor() {
+    this.autoCollect();
+  }
+
+  // 自动采集
+  autoCollect() {
+    this.trackErrors();    // JS错误、资源加载错误
+    this.trackPerformance(); // 性能指标（LCP, FCP, FID等）
+    this.trackBehaviors(); // 用户行为（点击、滚动、路由跳转）
+  }
+
+  // 手动埋点API
+  track(event, payload) {
+    this.process({ type: 'CUSTOM', event, ...payload });
+  }
+}
+```
+
+#### 2. 数据处理模块（Processor）
+负责数据清洗、过滤和格式化。
+```javascript
+class Processor {
+  pipe(data) {
+    return this.compose(
+      this.addEnvInfo,     // 添加环境信息
+      this.filterSensitiveData, // 敏感数据过滤
+      this.sampling(0.1),  // 采样率控制
+      this.throttle(500)   // 节流控制
+    )(data);
+  }
+}
+```
+
+#### 3. 数据发送模块（Sender）
+负责数据上报，优先使用高性能方案。
+```javascript
+class Sender {
+  send(data) {
+    // 优先使用 sendBeacon
+    if (navigator.sendBeacon) {
+      const blob = new Blob([JSON.stringify(data)]);
+      navigator.sendBeacon(endpoint, blob);
+    } else {
+      // 降级方案：使用空图片请求
+      new Image().src = `${endpoint}?data=${encodeURIComponent(JSON.stringify(data))}`;
+    }
+  }
+}
+```
+
+#### 4. 本地缓存模块（Storage）
+负责数据缓存和重试机制。
+```javascript
+class Storage {
+  constructor() {
+    this.quota = 1000; // 最大缓存条目数
+    this.queue = new LruCache(this.quota);
+  }
+
+  async flush() {
+    if (navigator.onLine) {
+      while (this.queue.size > 0) {
+        await this.sendBatch(this.queue.pop(10)); // 批量发送
+      }
+    }
+  }
+}
+```
+
+---
+
+### 四、关键技术方案
+
+#### 1. 性能优化
+- **异步加载**：通过动态 `<script>` 标签加载 SDK。
+- **空闲上报**：使用 `requestIdleCallback` 调度任务。
+- **数据压缩**：采用 gzip + Protocol Buffers 二进制格式。
+- **差异化采样**：关键错误 100% 上报，行为数据动态采样。
+
+#### 2. 错误监控增强
+```javascript
+window.addEventListener('error', (e) => {
+  const isResourceError = e.target instanceof HTMLElement;
+  const stack = isResourceError ? null : e.error.stack;
+  
+  SDK.track('ERROR', {
+    type: isResourceError ? 'RESOURCE' : 'JS',
+    message: e.message,
+    stack: parseStack(stack), // 错误堆栈解析
+    filename: e.filename,
+    tagName: e.target.tagName
+  });
+}, true);
+```
+
+#### 3. 插件系统
+支持自定义插件扩展功能。
+```javascript
+class Plugin {
+  constructor(sdk) {
+    this.sdk = sdk;
+    this.init();
+  }
+}
+
+class PVPlugin extends Plugin {
+  init() {
+    window.addEventListener('hashchange', this.trackPV);
+    window.addEventListener('popstate', this.trackPV);
+  }
+  
+  trackPV() {
+    this.sdk.track('PAGE_VIEW', {
+      path: location.pathname,
+      params: parseQueryParams()
+    });
+  }
+}
+```
+
+#### 4. 隐私合规处理
+支持敏感数据过滤。
+```javascript
+const defaultMaskRules = {
+  password: true,
+  creditcard: (value) => value.replace(/\d{12}(\d{4})/, '**** **** **** $1')
+};
+
+function maskSensitiveData(data, rules) {
+  return deepWalk(data, (key, val) => {
+    if (rules[key]) return typeof rules[key] === 'function' 
+      ? rules[key](val) 
+      : '***';
+    return val;
+  });
+}
+```
+
+---
+
+### 五、性能指标对比
+
+| 方案 | 内存占用 | 网络消耗 | 兼容性 | 数据完整性 |
+|------|---------|---------|--------|-----------|
+| Beacon API | 低 | 中 | IE ❌ | 高 |
+| Image Pixel | 最低 | 低 | 全兼容 | 最低 |
+| XHR | 中 | 高 | IE10+ | 最高 |
+| WebSocket | 高 | 最低 | IE10+ | 高 |
+
+---
+
+### 六、接入示例
+```html
+<script>
+  window.__LOG_SDK_CONFIG__ = {
+    endpoint: "https://log.yourdomain.com",
+    appId: "YOUR_APP_ID",
+    plugins: [PerformancePlugin, ErrorPlugin],
+    sampling: {
+      error: 1.0,    // 错误全采集
+      click: 0.2    // 点击20%采样
+    }
+  };
+</script>
+<script async src="https://cdn.yourdomain.com/log-sdk.v2.min.js"></script>
+```
+
+---
+
+### 七、关键决策点
+1. **传输协议选择**：优先 Beacon API，降级到 Image 像素打点。
+2. **数据序列化**：JSON → Protocol Buffers（体积减少 60%）。
+3. **缓存策略**：LRU 缓存 + 指数退避重试。
+4. **错误隔离**：每个处理步骤使用 try/catch 包裹。
+5. **Tree-shaking**：按需加载插件，基础包保持 < 10KB。
+
+通过以上设计，可实现日亿级数据量的可靠采集，在 3G 网络下额外资源消耗 < 5%，CPU 峰值占用 < 3%，达到生产环境可用标准。
+
+
+## 前端如何给网页增加水印？并且如何防止水印被移除？
+
+
+给网页增加水印有多种方法，但为了让水印不容易被移除，你需要考虑在多个层次进行防护。以下是几种常见的方法：
+
+### 1. **CSS 水印（前端页面层级）**
+   使用 CSS 给网页添加水印是最简单的方法，但这种方式容易被开发者通过修改页面样式或删除元素来移除。下面是一个基础示例：
+
+   ```css
+   body {
+       position: relative;
+   }
+
+   .watermark {
+       position: absolute;
+       top: 50%;
+       left: 50%;
+       transform: translate(-50%, -50%);
+       font-size: 50px;
+       color: rgba(0, 0, 0, 0.15);
+       white-space: nowrap;
+       z-index: 9999;
+       pointer-events: none; /* 让水印不会影响点击操作 */
+   }
+   ```
+
+   ```html
+   <div class="watermark">版权水印</div>
+   ```
+
+   **防止移除方法：**
+   - **动态插入**：通过 JavaScript 动态插入水印，减少开发者在源代码中直接修改的机会。
+   - **防止右键菜单**：禁用右键菜单，阻止开发者通过右键删除水印元素。
+
+     ```javascript
+     document.addEventListener('contextmenu', function(e) {
+         e.preventDefault(); // 禁止右键
+     });
+     ```
+
+### 2. **Canvas 绘制水印（防止被简单移除）**
+   使用 HTML5 `<canvas>` 来绘制水印是一种更为有效的防护方式，因为水印直接嵌入到页面的图形层，而不是通过 DOM 元素呈现。这意味着开发者即使想移除水印，也需要处理整个画布。
+
+   **示例：**
+
+   ```html
+   <canvas id="watermarkCanvas" style="position: fixed; top: 0; left: 0; z-index: 9999; pointer-events: none;"></canvas>
+
+   <script>
+   window.onload = function() {
+       const canvas = document.getElementById('watermarkCanvas');
+       const ctx = canvas.getContext('2d');
+       const text = '版权水印';
+       const fontSize = 50;
+
+       // 设置画布尺寸
+       canvas.width = window.innerWidth;
+       canvas.height = window.innerHeight;
+
+       // 设置文字样式
+       ctx.font = `${fontSize}px Arial`;
+       ctx.fillStyle = 'rgba(0, 0, 0, 0.15)';
+       ctx.textAlign = 'center';
+       ctx.textBaseline = 'middle';
+
+       // 绘制水印
+       const rows = Math.floor(canvas.height / fontSize);
+       const cols = Math.floor(canvas.width / fontSize);
+       for (let i = 0; i < rows; i++) {
+           for (let j = 0; j < cols; j++) {
+               ctx.fillText(text, j * fontSize * 2 + fontSize, i * fontSize * 2 + fontSize);
+           }
+       }
+   };
+   </script>
+   ```
+
+   **防止移除方法：**
+   - **避免 DOM 操作**：`<canvas>` 元素通过图像渲染水印，开发者无法直接通过 CSS 或 JS 移除文本。
+   - **加密水印文本**：可以加密或混淆水印文本内容，使得即使是对页面源代码进行反编译，也难以识别水印的内容。
+
+### 3. **背景图片水印（嵌入图像）**
+   将水印嵌入页面的背景图片中也是一种常见的方式。你可以使用合成图片工具（如 Photoshop）创建带水印的背景图片，然后将其作为网页的背景。
+
+   **示例：**
+
+   ```css
+   body {
+       background-image: url('your-watermark-image.png');
+       background-repeat: no-repeat;
+       background-position: center center;
+       background-size: cover;
+   }
+   ```
+
+   **防止移除方法：**
+   - **图片加密**：将水印图像加密或使用类似动态水印的方式生成，这样即使图像被下载，也不能轻易识别水印内容。
+   - **分层设计**：在图片中将水印分布到多个图层中，即使开发者去除背景图，水印也会部分保留。
+
+### 4. **使用 SVG 水印（可变形且嵌入DOM）**
+   SVG 水印是一种比较灵活且难以去除的方法。你可以在页面中直接插入一个包含水印内容的 SVG 图像。
+
+   **示例：**
+
+   ```html
+   <svg width="100%" height="100%" style="position: absolute; top: 0; left: 0; pointer-events: none; z-index: 9999;">
+       <text x="50%" y="50%" font-size="50" fill="rgba(0, 0, 0, 0.15)" text-anchor="middle" dominant-baseline="middle">
+           版权水印
+       </text>
+   </svg>
+   ```
+
+   **防止移除方法：**
+   - **加密和动态生成**：动态生成 SVG 内容，并嵌入加密或混淆的水印文本。
+   - **嵌入多个水印层**：可以通过嵌入多个透明的、位置分散的水印，增加移除难度。
+
+### 5. **JavaScript 水印（嵌入文档）**
+   使用 JavaScript 动态添加水印内容到页面，可以灵活调整水印的样式、位置等。通过动态渲染方式，可以增加移除水印的难度。
+
+   **示例：**
+
+   ```javascript
+   window.onload = function() {
+       const watermarkText = '版权水印';
+       const watermarkDiv = document.createElement('div');
+       watermarkDiv.innerText = watermarkText;
+       watermarkDiv.style.position = 'fixed';
+       watermarkDiv.style.top = '50%';
+       watermarkDiv.style.left = '50%';
+       watermarkDiv.style.transform = 'translate(-50%, -50%)';
+       watermarkDiv.style.fontSize = '50px';
+       watermarkDiv.style.color = 'rgba(0, 0, 0, 0.1)';
+       watermarkDiv.style.pointerEvents = 'none';
+       watermarkDiv.style.zIndex = 9999;
+       document.body.appendChild(watermarkDiv);
+   };
+   ```
+
+   **防止移除方法：**
+   - **动态生成和隐藏**：通过动态生成并嵌入水印内容，避免固定 DOM 元素被删除。
+   - **防止修改**：通过事件监听（如 DOM 变化监听）监控页面对水印的修改，并及时恢复。
+
+### 6. **防止水印被移除**
+   通过组合多种技术，可以有效增加水印的移除难度：
+   - **嵌入多个水印层**：在页面的多个地方插入水印，而不是依赖单一的水印。
+   - **使用混淆和加密技术**：对水印文本进行加密，或者对水印元素进行混淆。
+   - **动态渲染水印**：避免在页面加载时直接渲染水印，而是通过 JavaScript 动态插入，增加开发者反向工程的难度。
+   - **防止页面源代码被修改**：禁止右键点击、禁用开发者工具、监控 DOM 修改等措施。
+
+通过综合这些策略，可以增加水印的有效性和防止其被轻易移除。
+
+
+
+
+https://juejin.cn/post/7335337310547017768#heading-12

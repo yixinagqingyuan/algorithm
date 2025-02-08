@@ -1,5 +1,5 @@
 import comp from "/Users/a58/2023/algorithm/docs/.vuepress/.temp/pages/review/node.html.vue"
-const data = JSON.parse("{\"path\":\"/review/node.html\",\"title\":\"nodejs 热门考题\",\"lang\":\"en-US\",\"frontmatter\":{},\"headers\":[],\"git\":{\"updatedTime\":null,\"contributors\":[]},\"filePathRelative\":\"review/node.md\",\"excerpt\":\"<!-- @format -->\\n<h1>nodejs 热门考题</h1>\\n\"}")
+const data = JSON.parse("{\"path\":\"/review/node.html\",\"title\":\"nodejs 热门考题\",\"lang\":\"en-US\",\"frontmatter\":{},\"headers\":[],\"git\":{\"updatedTime\":1737013072000,\"contributors\":[{\"name\":\"杨永生\",\"email\":\"yangyongsheng@58.com\",\"commits\":1}]},\"filePathRelative\":\"review/node.md\",\"excerpt\":\"<!-- @format -->\\n<h1>nodejs 热门考题</h1>\\n\"}")
 export { comp, data }
 
 if (import.meta.webpackHot) {

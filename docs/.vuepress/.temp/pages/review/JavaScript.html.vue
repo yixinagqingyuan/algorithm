@@ -1036,6 +1036,70 @@
 <li><strong>箭头函数</strong>：主要优点是简洁、没有自己的 <code v-pre>this</code>、没有 <code v-pre>arguments</code> 和 <code v-pre>super</code>，适用于回调函数、简短的函数。它不适合需要动态 <code v-pre>this</code> 绑定、生成器函数等场景。</li>
 <li><strong>普通函数</strong>：适用于构造函数、需要动态绑定 <code v-pre>this</code> 或需要使用 <code v-pre>arguments</code> 的情况。</li>
 </ul>
+<h2 id="_9、var-a-a-push-、a-pop-请说明在js中的意义" tabindex="-1"><a class="header-anchor" href="#_9、var-a-a-push-、a-pop-请说明在js中的意义"><span>9、var a = []; a.push()、a.pop() 请说明在js中的意义</span></a></h2>
+<p>在 JavaScript 中，<code v-pre>push()</code> 和 <code v-pre>pop()</code> 是数组（<code v-pre>Array</code>）对象的两个常用方法，它们分别用于向数组添加元素和从数组移除元素。</p>
+<ol>
+<li>
+<p><strong><code v-pre>a.push()</code></strong>:</p>
+<ul>
+<li><code v-pre>push()</code> 方法用于将一个或多个元素添加到数组的末尾，并返回新的数组长度。</li>
+<li>如果调用 <code v-pre>a.push()</code> 时不传入任何参数，则该方法会将 <code v-pre>undefined</code> 添加到数组中，数组长度会增加 1。</li>
+<li>例如：<div class="language-javascript line-numbers-mode" data-highlighter="prismjs" data-ext="js" data-title="js"><pre v-pre><code><span class="line"><span class="token keyword">var</span> a <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">;</span></span>
+<span class="line">a<span class="token punctuation">.</span><span class="token function">push</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">// a = [1]</span></span>
+<span class="line">a<span class="token punctuation">.</span><span class="token function">push</span><span class="token punctuation">(</span><span class="token number">2</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">// a = [1, 2, 3]</span></span>
+<span class="line"></span></code></pre>
+<div class="line-numbers" aria-hidden="true" style="counter-reset:line-number 0"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div></li>
+</ul>
+</li>
+<li>
+<p><strong><code v-pre>a.pop()</code></strong>:</p>
+<ul>
+<li><code v-pre>pop()</code> 方法用于从数组的末尾移除并返回该元素。调用 <code v-pre>pop()</code> 会改变原始数组，即数组的长度会减少 1。</li>
+<li>如果数组为空，调用 <code v-pre>pop()</code> 不会做任何操作，且返回 <code v-pre>undefined</code>。</li>
+<li>例如：<div class="language-javascript line-numbers-mode" data-highlighter="prismjs" data-ext="js" data-title="js"><pre v-pre><code><span class="line"><span class="token keyword">var</span> a <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">]</span><span class="token punctuation">;</span></span>
+<span class="line"><span class="token keyword">var</span> lastElement <span class="token operator">=</span> a<span class="token punctuation">.</span><span class="token function">pop</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">// a = [1, 2], lastElement = 3</span></span>
+<span class="line"></span></code></pre>
+<div class="line-numbers" aria-hidden="true" style="counter-reset:line-number 0"><div class="line-number"></div><div class="line-number"></div></div></div></li>
+</ul>
+</li>
+</ol>
+<h3 id="总结-5" tabindex="-1"><a class="header-anchor" href="#总结-5"><span>总结：</span></a></h3>
+<ul>
+<li><code v-pre>push()</code> 用于向数组的末尾添加元素，并返回新的数组长度。</li>
+<li><code v-pre>pop()</code> 用于从数组的末尾移除元素，并返回被移除的元素。</li>
+</ul>
+<p>这两个方法通常用于动态操作数组，适合处理栈（LIFO, 后进先出）数据结构。你可以将数组看作是一个栈，<code v-pre>push()</code> 就是压栈，<code v-pre>pop()</code> 就是弹栈。</p>
+<h2 id="_10、输出结果-为什么" tabindex="-1"><a class="header-anchor" href="#_10、输出结果-为什么"><span>10、输出结果，为什么？</span></a></h2>
+<div class="language-javascript line-numbers-mode" data-highlighter="prismjs" data-ext="js" data-title="js"><pre v-pre><code><span class="line"><span class="token keyword">const</span> obj3 <span class="token operator">=</span> <span class="token punctuation">{</span><span class="token literal-property property">a</span><span class="token operator">:</span> <span class="token number">1</span><span class="token punctuation">}</span><span class="token punctuation">;</span> </span>
+<span class="line"><span class="token keyword">const</span> obj4 <span class="token operator">=</span> <span class="token punctuation">{</span><span class="token literal-property property">b</span><span class="token operator">:</span> <span class="token number">2</span><span class="token punctuation">}</span><span class="token punctuation">;</span> </span>
+<span class="line">console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span>obj3 <span class="token operator">==</span> obj4<span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">// false </span></span>
+<span class="line">console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span>obj3 <span class="token operator">===</span> obj4<span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">// false</span></span>
+<span class="line"></span>
+<span class="line"></span></code></pre>
+<div class="line-numbers" aria-hidden="true" style="counter-reset:line-number 0"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><p>在 JavaScript 中，<code v-pre>==</code> 和 <code v-pre>===</code> 都用于比较两个值，但它们的比较规则有所不同。对于对象的比较，它们的行为更有特点。</p>
+<h3 id="_1-obj3-obj4-的结果" tabindex="-1"><a class="header-anchor" href="#_1-obj3-obj4-的结果"><span>1. <strong><code v-pre>obj3 == obj4</code> 的结果：</strong></span></a></h3>
+<ul>
+<li>输出：<code v-pre>false</code></li>
+</ul>
+<p><strong>原因：</strong></p>
+<ul>
+<li>在 JavaScript 中，<code v-pre>==</code> 比较的是 <strong>引用</strong>，而不是对象的内容。也就是说，两个对象即使它们的属性和值完全相同，它们仍然是不同的引用，指向内存中的不同位置。</li>
+<li><code v-pre>obj3</code> 和 <code v-pre>obj4</code> 是两个不同的对象，虽然它们的内容（<code v-pre>a: 1</code> 和 <code v-pre>b: 2</code>）不同，但这两个对象在内存中是两个独立的实体。因此，<code v-pre>obj3 == obj4</code> 返回 <code v-pre>false</code>。</li>
+</ul>
+<h3 id="_2-obj3-obj4-的结果" tabindex="-1"><a class="header-anchor" href="#_2-obj3-obj4-的结果"><span>2. <strong><code v-pre>obj3 === obj4</code> 的结果：</strong></span></a></h3>
+<ul>
+<li>输出：<code v-pre>false</code></li>
+</ul>
+<p><strong>原因：</strong></p>
+<ul>
+<li><code v-pre>===</code> 是严格相等比较（也称为 <strong>全等比较</strong>），它不仅比较值，还比较类型以及引用是否相同。</li>
+<li>因为 <code v-pre>obj3</code> 和 <code v-pre>obj4</code> 是两个不同的对象，即使它们的属性和值不同，它们的引用也是不同的。因此，<code v-pre>obj3 === obj4</code> 返回 <code v-pre>false</code>。</li>
+</ul>
+<h3 id="总结-6" tabindex="-1"><a class="header-anchor" href="#总结-6"><span>总结：</span></a></h3>
+<ul>
+<li><code v-pre>==</code> 和 <code v-pre>===</code> 对象的比较都比较的是 <strong>引用</strong>，而不是对象的内容。所以两个对象即使内容相同，只要它们是不同的实例（在内存中有不同的引用），比较结果都会是 <code v-pre>false</code>。</li>
+<li>在 JavaScript 中，<strong>对象比较</strong> 永远是比较引用，而非对象的具体值或结构。</li>
+</ul>
 </div></template>
 
 

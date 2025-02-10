@@ -132,17 +132,17 @@ console.log(sum.equals(0.3)) // true
 #### **1.2 返回值**
 
 `typeof` 的返回值是以下几种字符串：
-| 类型 | 返回值 | 示例 |
-|----------------|------------------|---------------------------------------|
-| Undefined | `'undefined'` | `typeof undefined` |
-| Null | `'object'` (特殊)| `typeof null` |
-| Boolean | `'boolean'` | `typeof true`, `typeof false` |
-| Number | `'number'` | `typeof 42`, `typeof NaN` |
-| BigInt | `'bigint'` | `typeof 123n` |
-| String | `'string'` | `typeof 'hello'` |
-| Symbol | `'symbol'` | `typeof Symbol('id')` |
-| Function | `'function'` | `typeof function() {}` |
-| Object | `'object'` | `typeof {}`, `typeof [1, 2, 3]` |
+| 类型      | 返回值            | 示例                            |
+| --------- | ----------------- | ------------------------------- |
+| Undefined | `'undefined'`     | `typeof undefined`              |
+| Null      | `'object'` (特殊) | `typeof null`                   |
+| Boolean   | `'boolean'`       | `typeof true`, `typeof false`   |
+| Number    | `'number'`        | `typeof 42`, `typeof NaN`       |
+| BigInt    | `'bigint'`        | `typeof 123n`                   |
+| String    | `'string'`        | `typeof 'hello'`                |
+| Symbol    | `'symbol'`        | `typeof Symbol('id')`           |
+| Function  | `'function'`      | `typeof function() {}`          |
+| Object    | `'object'`        | `typeof {}`, `typeof [1, 2, 3]` |
 
 #### **1.3 注意事项**
 
@@ -969,3 +969,64 @@ console.log(p.name) // 输出: Alice
 
 - **箭头函数**：主要优点是简洁、没有自己的 `this`、没有 `arguments` 和 `super`，适用于回调函数、简短的函数。它不适合需要动态 `this` 绑定、生成器函数等场景。
 - **普通函数**：适用于构造函数、需要动态绑定 `this` 或需要使用 `arguments` 的情况。
+
+## 9、var a = []; a.push()、a.pop() 请说明在js中的意义
+
+在 JavaScript 中，`push()` 和 `pop()` 是数组（`Array`）对象的两个常用方法，它们分别用于向数组添加元素和从数组移除元素。
+
+1. **`a.push()`**:
+   - `push()` 方法用于将一个或多个元素添加到数组的末尾，并返回新的数组长度。
+   - 如果调用 `a.push()` 时不传入任何参数，则该方法会将 `undefined` 添加到数组中，数组长度会增加 1。
+   - 例如：
+     ```javascript
+     var a = [];
+     a.push(1); // a = [1]
+     a.push(2, 3); // a = [1, 2, 3]
+     ```
+
+2. **`a.pop()`**:
+   - `pop()` 方法用于从数组的末尾移除并返回该元素。调用 `pop()` 会改变原始数组，即数组的长度会减少 1。
+   - 如果数组为空，调用 `pop()` 不会做任何操作，且返回 `undefined`。
+   - 例如：
+     ```javascript
+     var a = [1, 2, 3];
+     var lastElement = a.pop(); // a = [1, 2], lastElement = 3
+     ```
+
+### 总结：
+- `push()` 用于向数组的末尾添加元素，并返回新的数组长度。
+- `pop()` 用于从数组的末尾移除元素，并返回被移除的元素。
+
+这两个方法通常用于动态操作数组，适合处理栈（LIFO, 后进先出）数据结构。你可以将数组看作是一个栈，`push()` 就是压栈，`pop()` 就是弹栈。
+
+
+## 10、输出结果，为什么？
+
+```javascript
+const obj3 = {a: 1}; 
+const obj4 = {b: 2}; 
+console.log(obj3 == obj4); // false 
+console.log(obj3 === obj4); // false
+
+```
+
+在 JavaScript 中，`==` 和 `===` 都用于比较两个值，但它们的比较规则有所不同。对于对象的比较，它们的行为更有特点。
+
+### 1. **`obj3 == obj4` 的结果：**  
+   - 输出：`false`
+   
+   **原因：**
+   - 在 JavaScript 中，`==` 比较的是 **引用**，而不是对象的内容。也就是说，两个对象即使它们的属性和值完全相同，它们仍然是不同的引用，指向内存中的不同位置。
+   - `obj3` 和 `obj4` 是两个不同的对象，虽然它们的内容（`a: 1` 和 `b: 2`）不同，但这两个对象在内存中是两个独立的实体。因此，`obj3 == obj4` 返回 `false`。
+
+### 2. **`obj3 === obj4` 的结果：**  
+   - 输出：`false`
+
+   **原因：**
+   - `===` 是严格相等比较（也称为 **全等比较**），它不仅比较值，还比较类型以及引用是否相同。
+   - 因为 `obj3` 和 `obj4` 是两个不同的对象，即使它们的属性和值不同，它们的引用也是不同的。因此，`obj3 === obj4` 返回 `false`。
+
+### 总结：
+- `==` 和 `===` 对象的比较都比较的是 **引用**，而不是对象的内容。所以两个对象即使内容相同，只要它们是不同的实例（在内存中有不同的引用），比较结果都会是 `false`。
+- 在 JavaScript 中，**对象比较** 永远是比较引用，而非对象的具体值或结构。
+

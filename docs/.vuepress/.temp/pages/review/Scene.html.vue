@@ -1738,6 +1738,584 @@
 <hr>
 <h3 id="四、总结-1" tabindex="-1"><a class="header-anchor" href="#四、总结-1"><span><strong>四、总结</strong></span></a></h3>
 <p>通过 WebSocket 可以高效实现实时聊天功能。前端负责建立连接、发送消息、渲染 UI，后端负责管理连接、消息广播和用户状态。结合消息通知、未读消息标记、聊天记录持久化等功能，可以实现一个完整的多用户实时聊天系统。</p>
+<p>设计一个前端日志埋点 SDK 需要综合考虑性能、扩展性、易用性和数据可靠性。以下是详细的设计思路和实现方案：</p>
+<hr>
+<h3 id="一、核心设计目标" tabindex="-1"><a class="header-anchor" href="#一、核心设计目标"><span>一、核心设计目标</span></a></h3>
+<ol>
+<li><strong>低侵入性</strong>：对业务代码影响最小化。</li>
+<li><strong>高性能</strong>：减少对页面性能的影响。</li>
+<li><strong>高可靠性</strong>：确保数据不丢失。</li>
+<li><strong>易扩展</strong>：支持自定义埋点和插件。</li>
+<li><strong>隐私安全</strong>：支持敏感数据过滤。</li>
+</ol>
+<hr>
+<h3 id="二、架构设计" tabindex="-1"><a class="header-anchor" href="#二、架构设计"><span>二、架构设计</span></a></h3>
+<div class="language-bash line-numbers-mode" data-highlighter="prismjs" data-ext="sh" data-title="sh"><pre v-pre><code><span class="line">├── Core</span>
+<span class="line">│   ├── Logger        <span class="token comment"># 日志主入口</span></span>
+<span class="line">│   ├── Collector     <span class="token comment"># 数据采集模块</span></span>
+<span class="line">│   ├── Processor     <span class="token comment"># 数据处理模块</span></span>
+<span class="line">│   ├── Sender        <span class="token comment"># 数据发送模块</span></span>
+<span class="line">│   └── Storage       <span class="token comment"># 本地缓存模块</span></span>
+<span class="line">├── Plugins           <span class="token comment"># 插件系统</span></span>
+<span class="line">│   ├── ErrorTracker  <span class="token comment"># 错误监控</span></span>
+<span class="line">│   ├── PerfTracker   <span class="token comment"># 性能监控</span></span>
+<span class="line">│   └── BehaviorTracker<span class="token comment"># 用户行为监控</span></span>
+<span class="line">└── Utils             <span class="token comment"># 工具库</span></span>
+<span class="line"></span></code></pre>
+<div class="line-numbers" aria-hidden="true" style="counter-reset:line-number 0"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><hr>
+<h3 id="三、核心模块实现" tabindex="-1"><a class="header-anchor" href="#三、核心模块实现"><span>三、核心模块实现</span></a></h3>
+<h4 id="_1-数据采集模块-collector" tabindex="-1"><a class="header-anchor" href="#_1-数据采集模块-collector"><span>1. 数据采集模块（Collector）</span></a></h4>
+<p>负责自动和手动采集数据。</p>
+<div class="language-javascript line-numbers-mode" data-highlighter="prismjs" data-ext="js" data-title="js"><pre v-pre><code><span class="line"><span class="token keyword">class</span> <span class="token class-name">Collector</span> <span class="token punctuation">{</span></span>
+<span class="line">  <span class="token function">constructor</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span></span>
+<span class="line">    <span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">autoCollect</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span></span>
+<span class="line">  <span class="token punctuation">}</span></span>
+<span class="line"></span>
+<span class="line">  <span class="token comment">// 自动采集</span></span>
+<span class="line">  <span class="token function">autoCollect</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span></span>
+<span class="line">    <span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">trackErrors</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>    <span class="token comment">// JS错误、资源加载错误</span></span>
+<span class="line">    <span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">trackPerformance</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">// 性能指标（LCP, FCP, FID等）</span></span>
+<span class="line">    <span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">trackBehaviors</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">// 用户行为（点击、滚动、路由跳转）</span></span>
+<span class="line">  <span class="token punctuation">}</span></span>
+<span class="line"></span>
+<span class="line">  <span class="token comment">// 手动埋点API</span></span>
+<span class="line">  <span class="token function">track</span><span class="token punctuation">(</span><span class="token parameter">event<span class="token punctuation">,</span> payload</span><span class="token punctuation">)</span> <span class="token punctuation">{</span></span>
+<span class="line">    <span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">process</span><span class="token punctuation">(</span><span class="token punctuation">{</span> <span class="token literal-property property">type</span><span class="token operator">:</span> <span class="token string">'CUSTOM'</span><span class="token punctuation">,</span> event<span class="token punctuation">,</span> <span class="token operator">...</span>payload <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span></span>
+<span class="line">  <span class="token punctuation">}</span></span>
+<span class="line"><span class="token punctuation">}</span></span>
+<span class="line"></span></code></pre>
+<div class="line-numbers" aria-hidden="true" style="counter-reset:line-number 0"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><h4 id="_2-数据处理模块-processor" tabindex="-1"><a class="header-anchor" href="#_2-数据处理模块-processor"><span>2. 数据处理模块（Processor）</span></a></h4>
+<p>负责数据清洗、过滤和格式化。</p>
+<div class="language-javascript line-numbers-mode" data-highlighter="prismjs" data-ext="js" data-title="js"><pre v-pre><code><span class="line"><span class="token keyword">class</span> <span class="token class-name">Processor</span> <span class="token punctuation">{</span></span>
+<span class="line">  <span class="token function">pipe</span><span class="token punctuation">(</span><span class="token parameter">data</span><span class="token punctuation">)</span> <span class="token punctuation">{</span></span>
+<span class="line">    <span class="token keyword">return</span> <span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">compose</span><span class="token punctuation">(</span></span>
+<span class="line">      <span class="token keyword">this</span><span class="token punctuation">.</span>addEnvInfo<span class="token punctuation">,</span>     <span class="token comment">// 添加环境信息</span></span>
+<span class="line">      <span class="token keyword">this</span><span class="token punctuation">.</span>filterSensitiveData<span class="token punctuation">,</span> <span class="token comment">// 敏感数据过滤</span></span>
+<span class="line">      <span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">sampling</span><span class="token punctuation">(</span><span class="token number">0.1</span><span class="token punctuation">)</span><span class="token punctuation">,</span>  <span class="token comment">// 采样率控制</span></span>
+<span class="line">      <span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">throttle</span><span class="token punctuation">(</span><span class="token number">500</span><span class="token punctuation">)</span>   <span class="token comment">// 节流控制</span></span>
+<span class="line">    <span class="token punctuation">)</span><span class="token punctuation">(</span>data<span class="token punctuation">)</span><span class="token punctuation">;</span></span>
+<span class="line">  <span class="token punctuation">}</span></span>
+<span class="line"><span class="token punctuation">}</span></span>
+<span class="line"></span></code></pre>
+<div class="line-numbers" aria-hidden="true" style="counter-reset:line-number 0"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><h4 id="_3-数据发送模块-sender" tabindex="-1"><a class="header-anchor" href="#_3-数据发送模块-sender"><span>3. 数据发送模块（Sender）</span></a></h4>
+<p>负责数据上报，优先使用高性能方案。</p>
+<div class="language-javascript line-numbers-mode" data-highlighter="prismjs" data-ext="js" data-title="js"><pre v-pre><code><span class="line"><span class="token keyword">class</span> <span class="token class-name">Sender</span> <span class="token punctuation">{</span></span>
+<span class="line">  <span class="token function">send</span><span class="token punctuation">(</span><span class="token parameter">data</span><span class="token punctuation">)</span> <span class="token punctuation">{</span></span>
+<span class="line">    <span class="token comment">// 优先使用 sendBeacon</span></span>
+<span class="line">    <span class="token keyword">if</span> <span class="token punctuation">(</span>navigator<span class="token punctuation">.</span>sendBeacon<span class="token punctuation">)</span> <span class="token punctuation">{</span></span>
+<span class="line">      <span class="token keyword">const</span> blob <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Blob</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token constant">JSON</span><span class="token punctuation">.</span><span class="token function">stringify</span><span class="token punctuation">(</span>data<span class="token punctuation">)</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span></span>
+<span class="line">      navigator<span class="token punctuation">.</span><span class="token function">sendBeacon</span><span class="token punctuation">(</span>endpoint<span class="token punctuation">,</span> blob<span class="token punctuation">)</span><span class="token punctuation">;</span></span>
+<span class="line">    <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span></span>
+<span class="line">      <span class="token comment">// 降级方案：使用空图片请求</span></span>
+<span class="line">      <span class="token keyword">new</span> <span class="token class-name">Image</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span>src <span class="token operator">=</span> <span class="token template-string"><span class="token template-punctuation string">`</span><span class="token interpolation"><span class="token interpolation-punctuation punctuation">${</span>endpoint<span class="token interpolation-punctuation punctuation">}</span></span><span class="token string">?data=</span><span class="token interpolation"><span class="token interpolation-punctuation punctuation">${</span><span class="token function">encodeURIComponent</span><span class="token punctuation">(</span><span class="token constant">JSON</span><span class="token punctuation">.</span><span class="token function">stringify</span><span class="token punctuation">(</span>data<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token interpolation-punctuation punctuation">}</span></span><span class="token template-punctuation string">`</span></span><span class="token punctuation">;</span></span>
+<span class="line">    <span class="token punctuation">}</span></span>
+<span class="line">  <span class="token punctuation">}</span></span>
+<span class="line"><span class="token punctuation">}</span></span>
+<span class="line"></span></code></pre>
+<div class="line-numbers" aria-hidden="true" style="counter-reset:line-number 0"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><h4 id="_4-本地缓存模块-storage" tabindex="-1"><a class="header-anchor" href="#_4-本地缓存模块-storage"><span>4. 本地缓存模块（Storage）</span></a></h4>
+<p>负责数据缓存和重试机制。</p>
+<div class="language-javascript line-numbers-mode" data-highlighter="prismjs" data-ext="js" data-title="js"><pre v-pre><code><span class="line"><span class="token keyword">class</span> <span class="token class-name">Storage</span> <span class="token punctuation">{</span></span>
+<span class="line">  <span class="token function">constructor</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span></span>
+<span class="line">    <span class="token keyword">this</span><span class="token punctuation">.</span>quota <span class="token operator">=</span> <span class="token number">1000</span><span class="token punctuation">;</span> <span class="token comment">// 最大缓存条目数</span></span>
+<span class="line">    <span class="token keyword">this</span><span class="token punctuation">.</span>queue <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">LruCache</span><span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">.</span>quota<span class="token punctuation">)</span><span class="token punctuation">;</span></span>
+<span class="line">  <span class="token punctuation">}</span></span>
+<span class="line"></span>
+<span class="line">  <span class="token keyword">async</span> <span class="token function">flush</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span></span>
+<span class="line">    <span class="token keyword">if</span> <span class="token punctuation">(</span>navigator<span class="token punctuation">.</span>onLine<span class="token punctuation">)</span> <span class="token punctuation">{</span></span>
+<span class="line">      <span class="token keyword">while</span> <span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">.</span>queue<span class="token punctuation">.</span>size <span class="token operator">></span> <span class="token number">0</span><span class="token punctuation">)</span> <span class="token punctuation">{</span></span>
+<span class="line">        <span class="token keyword">await</span> <span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">sendBatch</span><span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">.</span>queue<span class="token punctuation">.</span><span class="token function">pop</span><span class="token punctuation">(</span><span class="token number">10</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">// 批量发送</span></span>
+<span class="line">      <span class="token punctuation">}</span></span>
+<span class="line">    <span class="token punctuation">}</span></span>
+<span class="line">  <span class="token punctuation">}</span></span>
+<span class="line"><span class="token punctuation">}</span></span>
+<span class="line"></span></code></pre>
+<div class="line-numbers" aria-hidden="true" style="counter-reset:line-number 0"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><hr>
+<h3 id="四、关键技术方案" tabindex="-1"><a class="header-anchor" href="#四、关键技术方案"><span>四、关键技术方案</span></a></h3>
+<h4 id="_1-性能优化" tabindex="-1"><a class="header-anchor" href="#_1-性能优化"><span>1. 性能优化</span></a></h4>
+<ul>
+<li><strong>异步加载</strong>：通过动态 <code v-pre>&lt;script&gt;</code> 标签加载 SDK。</li>
+<li><strong>空闲上报</strong>：使用 <code v-pre>requestIdleCallback</code> 调度任务。</li>
+<li><strong>数据压缩</strong>：采用 gzip + Protocol Buffers 二进制格式。</li>
+<li><strong>差异化采样</strong>：关键错误 100% 上报，行为数据动态采样。</li>
+</ul>
+<h4 id="_2-错误监控增强" tabindex="-1"><a class="header-anchor" href="#_2-错误监控增强"><span>2. 错误监控增强</span></a></h4>
+<div class="language-javascript line-numbers-mode" data-highlighter="prismjs" data-ext="js" data-title="js"><pre v-pre><code><span class="line">window<span class="token punctuation">.</span><span class="token function">addEventListener</span><span class="token punctuation">(</span><span class="token string">'error'</span><span class="token punctuation">,</span> <span class="token punctuation">(</span><span class="token parameter">e</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span></span>
+<span class="line">  <span class="token keyword">const</span> isResourceError <span class="token operator">=</span> e<span class="token punctuation">.</span>target <span class="token keyword">instanceof</span> <span class="token class-name">HTMLElement</span><span class="token punctuation">;</span></span>
+<span class="line">  <span class="token keyword">const</span> stack <span class="token operator">=</span> isResourceError <span class="token operator">?</span> <span class="token keyword">null</span> <span class="token operator">:</span> e<span class="token punctuation">.</span>error<span class="token punctuation">.</span>stack<span class="token punctuation">;</span></span>
+<span class="line">  </span>
+<span class="line">  <span class="token constant">SDK</span><span class="token punctuation">.</span><span class="token function">track</span><span class="token punctuation">(</span><span class="token string">'ERROR'</span><span class="token punctuation">,</span> <span class="token punctuation">{</span></span>
+<span class="line">    <span class="token literal-property property">type</span><span class="token operator">:</span> isResourceError <span class="token operator">?</span> <span class="token string">'RESOURCE'</span> <span class="token operator">:</span> <span class="token string">'JS'</span><span class="token punctuation">,</span></span>
+<span class="line">    <span class="token literal-property property">message</span><span class="token operator">:</span> e<span class="token punctuation">.</span>message<span class="token punctuation">,</span></span>
+<span class="line">    <span class="token literal-property property">stack</span><span class="token operator">:</span> <span class="token function">parseStack</span><span class="token punctuation">(</span>stack<span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token comment">// 错误堆栈解析</span></span>
+<span class="line">    <span class="token literal-property property">filename</span><span class="token operator">:</span> e<span class="token punctuation">.</span>filename<span class="token punctuation">,</span></span>
+<span class="line">    <span class="token literal-property property">tagName</span><span class="token operator">:</span> e<span class="token punctuation">.</span>target<span class="token punctuation">.</span>tagName</span>
+<span class="line">  <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span></span>
+<span class="line"><span class="token punctuation">}</span><span class="token punctuation">,</span> <span class="token boolean">true</span><span class="token punctuation">)</span><span class="token punctuation">;</span></span>
+<span class="line"></span></code></pre>
+<div class="line-numbers" aria-hidden="true" style="counter-reset:line-number 0"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><h4 id="_3-插件系统" tabindex="-1"><a class="header-anchor" href="#_3-插件系统"><span>3. 插件系统</span></a></h4>
+<p>支持自定义插件扩展功能。</p>
+<div class="language-javascript line-numbers-mode" data-highlighter="prismjs" data-ext="js" data-title="js"><pre v-pre><code><span class="line"><span class="token keyword">class</span> <span class="token class-name">Plugin</span> <span class="token punctuation">{</span></span>
+<span class="line">  <span class="token function">constructor</span><span class="token punctuation">(</span><span class="token parameter">sdk</span><span class="token punctuation">)</span> <span class="token punctuation">{</span></span>
+<span class="line">    <span class="token keyword">this</span><span class="token punctuation">.</span>sdk <span class="token operator">=</span> sdk<span class="token punctuation">;</span></span>
+<span class="line">    <span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">init</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span></span>
+<span class="line">  <span class="token punctuation">}</span></span>
+<span class="line"><span class="token punctuation">}</span></span>
+<span class="line"></span>
+<span class="line"><span class="token keyword">class</span> <span class="token class-name">PVPlugin</span> <span class="token keyword">extends</span> <span class="token class-name">Plugin</span> <span class="token punctuation">{</span></span>
+<span class="line">  <span class="token function">init</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span></span>
+<span class="line">    window<span class="token punctuation">.</span><span class="token function">addEventListener</span><span class="token punctuation">(</span><span class="token string">'hashchange'</span><span class="token punctuation">,</span> <span class="token keyword">this</span><span class="token punctuation">.</span>trackPV<span class="token punctuation">)</span><span class="token punctuation">;</span></span>
+<span class="line">    window<span class="token punctuation">.</span><span class="token function">addEventListener</span><span class="token punctuation">(</span><span class="token string">'popstate'</span><span class="token punctuation">,</span> <span class="token keyword">this</span><span class="token punctuation">.</span>trackPV<span class="token punctuation">)</span><span class="token punctuation">;</span></span>
+<span class="line">  <span class="token punctuation">}</span></span>
+<span class="line">  </span>
+<span class="line">  <span class="token function">trackPV</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span></span>
+<span class="line">    <span class="token keyword">this</span><span class="token punctuation">.</span>sdk<span class="token punctuation">.</span><span class="token function">track</span><span class="token punctuation">(</span><span class="token string">'PAGE_VIEW'</span><span class="token punctuation">,</span> <span class="token punctuation">{</span></span>
+<span class="line">      <span class="token literal-property property">path</span><span class="token operator">:</span> location<span class="token punctuation">.</span>pathname<span class="token punctuation">,</span></span>
+<span class="line">      <span class="token literal-property property">params</span><span class="token operator">:</span> <span class="token function">parseQueryParams</span><span class="token punctuation">(</span><span class="token punctuation">)</span></span>
+<span class="line">    <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span></span>
+<span class="line">  <span class="token punctuation">}</span></span>
+<span class="line"><span class="token punctuation">}</span></span>
+<span class="line"></span></code></pre>
+<div class="line-numbers" aria-hidden="true" style="counter-reset:line-number 0"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><h4 id="_4-隐私合规处理" tabindex="-1"><a class="header-anchor" href="#_4-隐私合规处理"><span>4. 隐私合规处理</span></a></h4>
+<p>支持敏感数据过滤。</p>
+<div class="language-javascript line-numbers-mode" data-highlighter="prismjs" data-ext="js" data-title="js"><pre v-pre><code><span class="line"><span class="token keyword">const</span> defaultMaskRules <span class="token operator">=</span> <span class="token punctuation">{</span></span>
+<span class="line">  <span class="token literal-property property">password</span><span class="token operator">:</span> <span class="token boolean">true</span><span class="token punctuation">,</span></span>
+<span class="line">  <span class="token function-variable function">creditcard</span><span class="token operator">:</span> <span class="token punctuation">(</span><span class="token parameter">value</span><span class="token punctuation">)</span> <span class="token operator">=></span> value<span class="token punctuation">.</span><span class="token function">replace</span><span class="token punctuation">(</span><span class="token regex"><span class="token regex-delimiter">/</span><span class="token regex-source language-regex">\d{12}(\d{4})</span><span class="token regex-delimiter">/</span></span><span class="token punctuation">,</span> <span class="token string">'**** **** **** $1'</span><span class="token punctuation">)</span></span>
+<span class="line"><span class="token punctuation">}</span><span class="token punctuation">;</span></span>
+<span class="line"></span>
+<span class="line"><span class="token keyword">function</span> <span class="token function">maskSensitiveData</span><span class="token punctuation">(</span><span class="token parameter">data<span class="token punctuation">,</span> rules</span><span class="token punctuation">)</span> <span class="token punctuation">{</span></span>
+<span class="line">  <span class="token keyword">return</span> <span class="token function">deepWalk</span><span class="token punctuation">(</span>data<span class="token punctuation">,</span> <span class="token punctuation">(</span><span class="token parameter">key<span class="token punctuation">,</span> val</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span></span>
+<span class="line">    <span class="token keyword">if</span> <span class="token punctuation">(</span>rules<span class="token punctuation">[</span>key<span class="token punctuation">]</span><span class="token punctuation">)</span> <span class="token keyword">return</span> <span class="token keyword">typeof</span> rules<span class="token punctuation">[</span>key<span class="token punctuation">]</span> <span class="token operator">===</span> <span class="token string">'function'</span> </span>
+<span class="line">      <span class="token operator">?</span> rules<span class="token punctuation">[</span>key<span class="token punctuation">]</span><span class="token punctuation">(</span>val<span class="token punctuation">)</span> </span>
+<span class="line">      <span class="token operator">:</span> <span class="token string">'***'</span><span class="token punctuation">;</span></span>
+<span class="line">    <span class="token keyword">return</span> val<span class="token punctuation">;</span></span>
+<span class="line">  <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span></span>
+<span class="line"><span class="token punctuation">}</span></span>
+<span class="line"></span></code></pre>
+<div class="line-numbers" aria-hidden="true" style="counter-reset:line-number 0"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><hr>
+<h3 id="五、性能指标对比" tabindex="-1"><a class="header-anchor" href="#五、性能指标对比"><span>五、性能指标对比</span></a></h3>
+<table>
+<thead>
+<tr>
+<th>方案</th>
+<th>内存占用</th>
+<th>网络消耗</th>
+<th>兼容性</th>
+<th>数据完整性</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Beacon API</td>
+<td>低</td>
+<td>中</td>
+<td>IE ❌</td>
+<td>高</td>
+</tr>
+<tr>
+<td>Image Pixel</td>
+<td>最低</td>
+<td>低</td>
+<td>全兼容</td>
+<td>最低</td>
+</tr>
+<tr>
+<td>XHR</td>
+<td>中</td>
+<td>高</td>
+<td>IE10+</td>
+<td>最高</td>
+</tr>
+<tr>
+<td>WebSocket</td>
+<td>高</td>
+<td>最低</td>
+<td>IE10+</td>
+<td>高</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h3 id="六、接入示例" tabindex="-1"><a class="header-anchor" href="#六、接入示例"><span>六、接入示例</span></a></h3>
+<div class="language-html line-numbers-mode" data-highlighter="prismjs" data-ext="html" data-title="html"><pre v-pre><code><span class="line"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>script</span><span class="token punctuation">></span></span><span class="token script"><span class="token language-javascript"></span>
+<span class="line">  window<span class="token punctuation">.</span>__LOG_SDK_CONFIG__ <span class="token operator">=</span> <span class="token punctuation">{</span></span>
+<span class="line">    <span class="token literal-property property">endpoint</span><span class="token operator">:</span> <span class="token string">"https://log.yourdomain.com"</span><span class="token punctuation">,</span></span>
+<span class="line">    <span class="token literal-property property">appId</span><span class="token operator">:</span> <span class="token string">"YOUR_APP_ID"</span><span class="token punctuation">,</span></span>
+<span class="line">    <span class="token literal-property property">plugins</span><span class="token operator">:</span> <span class="token punctuation">[</span>PerformancePlugin<span class="token punctuation">,</span> ErrorPlugin<span class="token punctuation">]</span><span class="token punctuation">,</span></span>
+<span class="line">    <span class="token literal-property property">sampling</span><span class="token operator">:</span> <span class="token punctuation">{</span></span>
+<span class="line">      <span class="token literal-property property">error</span><span class="token operator">:</span> <span class="token number">1.0</span><span class="token punctuation">,</span>    <span class="token comment">// 错误全采集</span></span>
+<span class="line">      <span class="token literal-property property">click</span><span class="token operator">:</span> <span class="token number">0.2</span>    <span class="token comment">// 点击20%采样</span></span>
+<span class="line">    <span class="token punctuation">}</span></span>
+<span class="line">  <span class="token punctuation">}</span><span class="token punctuation">;</span></span>
+<span class="line"></span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>script</span><span class="token punctuation">></span></span></span>
+<span class="line"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>script</span> <span class="token attr-name">async</span> <span class="token attr-name">src</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>https://cdn.yourdomain.com/log-sdk.v2.min.js<span class="token punctuation">"</span></span><span class="token punctuation">></span></span><span class="token script"></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>script</span><span class="token punctuation">></span></span></span>
+<span class="line"></span></code></pre>
+<div class="line-numbers" aria-hidden="true" style="counter-reset:line-number 0"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><hr>
+<h3 id="七、关键决策点" tabindex="-1"><a class="header-anchor" href="#七、关键决策点"><span>七、关键决策点</span></a></h3>
+<ol>
+<li><strong>传输协议选择</strong>：优先 Beacon API，降级到 Image 像素打点。</li>
+<li><strong>数据序列化</strong>：JSON → Protocol Buffers（体积减少 60%）。</li>
+<li><strong>缓存策略</strong>：LRU 缓存 + 指数退避重试。</li>
+<li><strong>错误隔离</strong>：每个处理步骤使用 try/catch 包裹。</li>
+<li><strong>Tree-shaking</strong>：按需加载插件，基础包保持 &lt; 10KB。</li>
+</ol>
+<p>通过以上设计，可实现日亿级数据量的可靠采集，在 3G 网络下额外资源消耗 &lt; 5%，CPU 峰值占用 &lt; 3%，达到生产环境可用标准。</p>
+<h2 id="你会如何设计前端日志埋点-sdk" tabindex="-1"><a class="header-anchor" href="#你会如何设计前端日志埋点-sdk"><span>你会如何设计前端日志埋点 SDK？</span></a></h2>
+<p>设计一个前端日志埋点 SDK 需要综合考虑性能、扩展性、易用性和数据可靠性。以下是详细的设计思路和实现方案：</p>
+<hr>
+<h3 id="一、核心设计目标-1" tabindex="-1"><a class="header-anchor" href="#一、核心设计目标-1"><span>一、核心设计目标</span></a></h3>
+<ol>
+<li><strong>低侵入性</strong>：对业务代码影响最小化。</li>
+<li><strong>高性能</strong>：减少对页面性能的影响。</li>
+<li><strong>高可靠性</strong>：确保数据不丢失。</li>
+<li><strong>易扩展</strong>：支持自定义埋点和插件。</li>
+<li><strong>隐私安全</strong>：支持敏感数据过滤。</li>
+</ol>
+<hr>
+<h3 id="二、架构设计-1" tabindex="-1"><a class="header-anchor" href="#二、架构设计-1"><span>二、架构设计</span></a></h3>
+<div class="language-bash line-numbers-mode" data-highlighter="prismjs" data-ext="sh" data-title="sh"><pre v-pre><code><span class="line">├── Core</span>
+<span class="line">│   ├── Logger        <span class="token comment"># 日志主入口</span></span>
+<span class="line">│   ├── Collector     <span class="token comment"># 数据采集模块</span></span>
+<span class="line">│   ├── Processor     <span class="token comment"># 数据处理模块</span></span>
+<span class="line">│   ├── Sender        <span class="token comment"># 数据发送模块</span></span>
+<span class="line">│   └── Storage       <span class="token comment"># 本地缓存模块</span></span>
+<span class="line">├── Plugins           <span class="token comment"># 插件系统</span></span>
+<span class="line">│   ├── ErrorTracker  <span class="token comment"># 错误监控</span></span>
+<span class="line">│   ├── PerfTracker   <span class="token comment"># 性能监控</span></span>
+<span class="line">│   └── BehaviorTracker<span class="token comment"># 用户行为监控</span></span>
+<span class="line">└── Utils             <span class="token comment"># 工具库</span></span>
+<span class="line"></span></code></pre>
+<div class="line-numbers" aria-hidden="true" style="counter-reset:line-number 0"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><hr>
+<h3 id="三、核心模块实现-1" tabindex="-1"><a class="header-anchor" href="#三、核心模块实现-1"><span>三、核心模块实现</span></a></h3>
+<h4 id="_1-数据采集模块-collector-1" tabindex="-1"><a class="header-anchor" href="#_1-数据采集模块-collector-1"><span>1. 数据采集模块（Collector）</span></a></h4>
+<p>负责自动和手动采集数据。</p>
+<div class="language-javascript line-numbers-mode" data-highlighter="prismjs" data-ext="js" data-title="js"><pre v-pre><code><span class="line"><span class="token keyword">class</span> <span class="token class-name">Collector</span> <span class="token punctuation">{</span></span>
+<span class="line">  <span class="token function">constructor</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span></span>
+<span class="line">    <span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">autoCollect</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span></span>
+<span class="line">  <span class="token punctuation">}</span></span>
+<span class="line"></span>
+<span class="line">  <span class="token comment">// 自动采集</span></span>
+<span class="line">  <span class="token function">autoCollect</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span></span>
+<span class="line">    <span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">trackErrors</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>    <span class="token comment">// JS错误、资源加载错误</span></span>
+<span class="line">    <span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">trackPerformance</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">// 性能指标（LCP, FCP, FID等）</span></span>
+<span class="line">    <span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">trackBehaviors</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">// 用户行为（点击、滚动、路由跳转）</span></span>
+<span class="line">  <span class="token punctuation">}</span></span>
+<span class="line"></span>
+<span class="line">  <span class="token comment">// 手动埋点API</span></span>
+<span class="line">  <span class="token function">track</span><span class="token punctuation">(</span><span class="token parameter">event<span class="token punctuation">,</span> payload</span><span class="token punctuation">)</span> <span class="token punctuation">{</span></span>
+<span class="line">    <span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">process</span><span class="token punctuation">(</span><span class="token punctuation">{</span> <span class="token literal-property property">type</span><span class="token operator">:</span> <span class="token string">'CUSTOM'</span><span class="token punctuation">,</span> event<span class="token punctuation">,</span> <span class="token operator">...</span>payload <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span></span>
+<span class="line">  <span class="token punctuation">}</span></span>
+<span class="line"><span class="token punctuation">}</span></span>
+<span class="line"></span></code></pre>
+<div class="line-numbers" aria-hidden="true" style="counter-reset:line-number 0"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><h4 id="_2-数据处理模块-processor-1" tabindex="-1"><a class="header-anchor" href="#_2-数据处理模块-processor-1"><span>2. 数据处理模块（Processor）</span></a></h4>
+<p>负责数据清洗、过滤和格式化。</p>
+<div class="language-javascript line-numbers-mode" data-highlighter="prismjs" data-ext="js" data-title="js"><pre v-pre><code><span class="line"><span class="token keyword">class</span> <span class="token class-name">Processor</span> <span class="token punctuation">{</span></span>
+<span class="line">  <span class="token function">pipe</span><span class="token punctuation">(</span><span class="token parameter">data</span><span class="token punctuation">)</span> <span class="token punctuation">{</span></span>
+<span class="line">    <span class="token keyword">return</span> <span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">compose</span><span class="token punctuation">(</span></span>
+<span class="line">      <span class="token keyword">this</span><span class="token punctuation">.</span>addEnvInfo<span class="token punctuation">,</span>     <span class="token comment">// 添加环境信息</span></span>
+<span class="line">      <span class="token keyword">this</span><span class="token punctuation">.</span>filterSensitiveData<span class="token punctuation">,</span> <span class="token comment">// 敏感数据过滤</span></span>
+<span class="line">      <span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">sampling</span><span class="token punctuation">(</span><span class="token number">0.1</span><span class="token punctuation">)</span><span class="token punctuation">,</span>  <span class="token comment">// 采样率控制</span></span>
+<span class="line">      <span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">throttle</span><span class="token punctuation">(</span><span class="token number">500</span><span class="token punctuation">)</span>   <span class="token comment">// 节流控制</span></span>
+<span class="line">    <span class="token punctuation">)</span><span class="token punctuation">(</span>data<span class="token punctuation">)</span><span class="token punctuation">;</span></span>
+<span class="line">  <span class="token punctuation">}</span></span>
+<span class="line"><span class="token punctuation">}</span></span>
+<span class="line"></span></code></pre>
+<div class="line-numbers" aria-hidden="true" style="counter-reset:line-number 0"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><h4 id="_3-数据发送模块-sender-1" tabindex="-1"><a class="header-anchor" href="#_3-数据发送模块-sender-1"><span>3. 数据发送模块（Sender）</span></a></h4>
+<p>负责数据上报，优先使用高性能方案。</p>
+<div class="language-javascript line-numbers-mode" data-highlighter="prismjs" data-ext="js" data-title="js"><pre v-pre><code><span class="line"><span class="token keyword">class</span> <span class="token class-name">Sender</span> <span class="token punctuation">{</span></span>
+<span class="line">  <span class="token function">send</span><span class="token punctuation">(</span><span class="token parameter">data</span><span class="token punctuation">)</span> <span class="token punctuation">{</span></span>
+<span class="line">    <span class="token comment">// 优先使用 sendBeacon</span></span>
+<span class="line">    <span class="token keyword">if</span> <span class="token punctuation">(</span>navigator<span class="token punctuation">.</span>sendBeacon<span class="token punctuation">)</span> <span class="token punctuation">{</span></span>
+<span class="line">      <span class="token keyword">const</span> blob <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Blob</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token constant">JSON</span><span class="token punctuation">.</span><span class="token function">stringify</span><span class="token punctuation">(</span>data<span class="token punctuation">)</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span></span>
+<span class="line">      navigator<span class="token punctuation">.</span><span class="token function">sendBeacon</span><span class="token punctuation">(</span>endpoint<span class="token punctuation">,</span> blob<span class="token punctuation">)</span><span class="token punctuation">;</span></span>
+<span class="line">    <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span></span>
+<span class="line">      <span class="token comment">// 降级方案：使用空图片请求</span></span>
+<span class="line">      <span class="token keyword">new</span> <span class="token class-name">Image</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span>src <span class="token operator">=</span> <span class="token template-string"><span class="token template-punctuation string">`</span><span class="token interpolation"><span class="token interpolation-punctuation punctuation">${</span>endpoint<span class="token interpolation-punctuation punctuation">}</span></span><span class="token string">?data=</span><span class="token interpolation"><span class="token interpolation-punctuation punctuation">${</span><span class="token function">encodeURIComponent</span><span class="token punctuation">(</span><span class="token constant">JSON</span><span class="token punctuation">.</span><span class="token function">stringify</span><span class="token punctuation">(</span>data<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token interpolation-punctuation punctuation">}</span></span><span class="token template-punctuation string">`</span></span><span class="token punctuation">;</span></span>
+<span class="line">    <span class="token punctuation">}</span></span>
+<span class="line">  <span class="token punctuation">}</span></span>
+<span class="line"><span class="token punctuation">}</span></span>
+<span class="line"></span></code></pre>
+<div class="line-numbers" aria-hidden="true" style="counter-reset:line-number 0"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><h4 id="_4-本地缓存模块-storage-1" tabindex="-1"><a class="header-anchor" href="#_4-本地缓存模块-storage-1"><span>4. 本地缓存模块（Storage）</span></a></h4>
+<p>负责数据缓存和重试机制。</p>
+<div class="language-javascript line-numbers-mode" data-highlighter="prismjs" data-ext="js" data-title="js"><pre v-pre><code><span class="line"><span class="token keyword">class</span> <span class="token class-name">Storage</span> <span class="token punctuation">{</span></span>
+<span class="line">  <span class="token function">constructor</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span></span>
+<span class="line">    <span class="token keyword">this</span><span class="token punctuation">.</span>quota <span class="token operator">=</span> <span class="token number">1000</span><span class="token punctuation">;</span> <span class="token comment">// 最大缓存条目数</span></span>
+<span class="line">    <span class="token keyword">this</span><span class="token punctuation">.</span>queue <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">LruCache</span><span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">.</span>quota<span class="token punctuation">)</span><span class="token punctuation">;</span></span>
+<span class="line">  <span class="token punctuation">}</span></span>
+<span class="line"></span>
+<span class="line">  <span class="token keyword">async</span> <span class="token function">flush</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span></span>
+<span class="line">    <span class="token keyword">if</span> <span class="token punctuation">(</span>navigator<span class="token punctuation">.</span>onLine<span class="token punctuation">)</span> <span class="token punctuation">{</span></span>
+<span class="line">      <span class="token keyword">while</span> <span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">.</span>queue<span class="token punctuation">.</span>size <span class="token operator">></span> <span class="token number">0</span><span class="token punctuation">)</span> <span class="token punctuation">{</span></span>
+<span class="line">        <span class="token keyword">await</span> <span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">sendBatch</span><span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">.</span>queue<span class="token punctuation">.</span><span class="token function">pop</span><span class="token punctuation">(</span><span class="token number">10</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">// 批量发送</span></span>
+<span class="line">      <span class="token punctuation">}</span></span>
+<span class="line">    <span class="token punctuation">}</span></span>
+<span class="line">  <span class="token punctuation">}</span></span>
+<span class="line"><span class="token punctuation">}</span></span>
+<span class="line"></span></code></pre>
+<div class="line-numbers" aria-hidden="true" style="counter-reset:line-number 0"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><hr>
+<h3 id="四、关键技术方案-1" tabindex="-1"><a class="header-anchor" href="#四、关键技术方案-1"><span>四、关键技术方案</span></a></h3>
+<h4 id="_1-性能优化-1" tabindex="-1"><a class="header-anchor" href="#_1-性能优化-1"><span>1. 性能优化</span></a></h4>
+<ul>
+<li><strong>异步加载</strong>：通过动态 <code v-pre>&lt;script&gt;</code> 标签加载 SDK。</li>
+<li><strong>空闲上报</strong>：使用 <code v-pre>requestIdleCallback</code> 调度任务。</li>
+<li><strong>数据压缩</strong>：采用 gzip + Protocol Buffers 二进制格式。</li>
+<li><strong>差异化采样</strong>：关键错误 100% 上报，行为数据动态采样。</li>
+</ul>
+<h4 id="_2-错误监控增强-1" tabindex="-1"><a class="header-anchor" href="#_2-错误监控增强-1"><span>2. 错误监控增强</span></a></h4>
+<div class="language-javascript line-numbers-mode" data-highlighter="prismjs" data-ext="js" data-title="js"><pre v-pre><code><span class="line">window<span class="token punctuation">.</span><span class="token function">addEventListener</span><span class="token punctuation">(</span><span class="token string">'error'</span><span class="token punctuation">,</span> <span class="token punctuation">(</span><span class="token parameter">e</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span></span>
+<span class="line">  <span class="token keyword">const</span> isResourceError <span class="token operator">=</span> e<span class="token punctuation">.</span>target <span class="token keyword">instanceof</span> <span class="token class-name">HTMLElement</span><span class="token punctuation">;</span></span>
+<span class="line">  <span class="token keyword">const</span> stack <span class="token operator">=</span> isResourceError <span class="token operator">?</span> <span class="token keyword">null</span> <span class="token operator">:</span> e<span class="token punctuation">.</span>error<span class="token punctuation">.</span>stack<span class="token punctuation">;</span></span>
+<span class="line">  </span>
+<span class="line">  <span class="token constant">SDK</span><span class="token punctuation">.</span><span class="token function">track</span><span class="token punctuation">(</span><span class="token string">'ERROR'</span><span class="token punctuation">,</span> <span class="token punctuation">{</span></span>
+<span class="line">    <span class="token literal-property property">type</span><span class="token operator">:</span> isResourceError <span class="token operator">?</span> <span class="token string">'RESOURCE'</span> <span class="token operator">:</span> <span class="token string">'JS'</span><span class="token punctuation">,</span></span>
+<span class="line">    <span class="token literal-property property">message</span><span class="token operator">:</span> e<span class="token punctuation">.</span>message<span class="token punctuation">,</span></span>
+<span class="line">    <span class="token literal-property property">stack</span><span class="token operator">:</span> <span class="token function">parseStack</span><span class="token punctuation">(</span>stack<span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token comment">// 错误堆栈解析</span></span>
+<span class="line">    <span class="token literal-property property">filename</span><span class="token operator">:</span> e<span class="token punctuation">.</span>filename<span class="token punctuation">,</span></span>
+<span class="line">    <span class="token literal-property property">tagName</span><span class="token operator">:</span> e<span class="token punctuation">.</span>target<span class="token punctuation">.</span>tagName</span>
+<span class="line">  <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span></span>
+<span class="line"><span class="token punctuation">}</span><span class="token punctuation">,</span> <span class="token boolean">true</span><span class="token punctuation">)</span><span class="token punctuation">;</span></span>
+<span class="line"></span></code></pre>
+<div class="line-numbers" aria-hidden="true" style="counter-reset:line-number 0"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><h4 id="_3-插件系统-1" tabindex="-1"><a class="header-anchor" href="#_3-插件系统-1"><span>3. 插件系统</span></a></h4>
+<p>支持自定义插件扩展功能。</p>
+<div class="language-javascript line-numbers-mode" data-highlighter="prismjs" data-ext="js" data-title="js"><pre v-pre><code><span class="line"><span class="token keyword">class</span> <span class="token class-name">Plugin</span> <span class="token punctuation">{</span></span>
+<span class="line">  <span class="token function">constructor</span><span class="token punctuation">(</span><span class="token parameter">sdk</span><span class="token punctuation">)</span> <span class="token punctuation">{</span></span>
+<span class="line">    <span class="token keyword">this</span><span class="token punctuation">.</span>sdk <span class="token operator">=</span> sdk<span class="token punctuation">;</span></span>
+<span class="line">    <span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">init</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span></span>
+<span class="line">  <span class="token punctuation">}</span></span>
+<span class="line"><span class="token punctuation">}</span></span>
+<span class="line"></span>
+<span class="line"><span class="token keyword">class</span> <span class="token class-name">PVPlugin</span> <span class="token keyword">extends</span> <span class="token class-name">Plugin</span> <span class="token punctuation">{</span></span>
+<span class="line">  <span class="token function">init</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span></span>
+<span class="line">    window<span class="token punctuation">.</span><span class="token function">addEventListener</span><span class="token punctuation">(</span><span class="token string">'hashchange'</span><span class="token punctuation">,</span> <span class="token keyword">this</span><span class="token punctuation">.</span>trackPV<span class="token punctuation">)</span><span class="token punctuation">;</span></span>
+<span class="line">    window<span class="token punctuation">.</span><span class="token function">addEventListener</span><span class="token punctuation">(</span><span class="token string">'popstate'</span><span class="token punctuation">,</span> <span class="token keyword">this</span><span class="token punctuation">.</span>trackPV<span class="token punctuation">)</span><span class="token punctuation">;</span></span>
+<span class="line">  <span class="token punctuation">}</span></span>
+<span class="line">  </span>
+<span class="line">  <span class="token function">trackPV</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span></span>
+<span class="line">    <span class="token keyword">this</span><span class="token punctuation">.</span>sdk<span class="token punctuation">.</span><span class="token function">track</span><span class="token punctuation">(</span><span class="token string">'PAGE_VIEW'</span><span class="token punctuation">,</span> <span class="token punctuation">{</span></span>
+<span class="line">      <span class="token literal-property property">path</span><span class="token operator">:</span> location<span class="token punctuation">.</span>pathname<span class="token punctuation">,</span></span>
+<span class="line">      <span class="token literal-property property">params</span><span class="token operator">:</span> <span class="token function">parseQueryParams</span><span class="token punctuation">(</span><span class="token punctuation">)</span></span>
+<span class="line">    <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span></span>
+<span class="line">  <span class="token punctuation">}</span></span>
+<span class="line"><span class="token punctuation">}</span></span>
+<span class="line"></span></code></pre>
+<div class="line-numbers" aria-hidden="true" style="counter-reset:line-number 0"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><h4 id="_4-隐私合规处理-1" tabindex="-1"><a class="header-anchor" href="#_4-隐私合规处理-1"><span>4. 隐私合规处理</span></a></h4>
+<p>支持敏感数据过滤。</p>
+<div class="language-javascript line-numbers-mode" data-highlighter="prismjs" data-ext="js" data-title="js"><pre v-pre><code><span class="line"><span class="token keyword">const</span> defaultMaskRules <span class="token operator">=</span> <span class="token punctuation">{</span></span>
+<span class="line">  <span class="token literal-property property">password</span><span class="token operator">:</span> <span class="token boolean">true</span><span class="token punctuation">,</span></span>
+<span class="line">  <span class="token function-variable function">creditcard</span><span class="token operator">:</span> <span class="token punctuation">(</span><span class="token parameter">value</span><span class="token punctuation">)</span> <span class="token operator">=></span> value<span class="token punctuation">.</span><span class="token function">replace</span><span class="token punctuation">(</span><span class="token regex"><span class="token regex-delimiter">/</span><span class="token regex-source language-regex">\d{12}(\d{4})</span><span class="token regex-delimiter">/</span></span><span class="token punctuation">,</span> <span class="token string">'**** **** **** $1'</span><span class="token punctuation">)</span></span>
+<span class="line"><span class="token punctuation">}</span><span class="token punctuation">;</span></span>
+<span class="line"></span>
+<span class="line"><span class="token keyword">function</span> <span class="token function">maskSensitiveData</span><span class="token punctuation">(</span><span class="token parameter">data<span class="token punctuation">,</span> rules</span><span class="token punctuation">)</span> <span class="token punctuation">{</span></span>
+<span class="line">  <span class="token keyword">return</span> <span class="token function">deepWalk</span><span class="token punctuation">(</span>data<span class="token punctuation">,</span> <span class="token punctuation">(</span><span class="token parameter">key<span class="token punctuation">,</span> val</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span></span>
+<span class="line">    <span class="token keyword">if</span> <span class="token punctuation">(</span>rules<span class="token punctuation">[</span>key<span class="token punctuation">]</span><span class="token punctuation">)</span> <span class="token keyword">return</span> <span class="token keyword">typeof</span> rules<span class="token punctuation">[</span>key<span class="token punctuation">]</span> <span class="token operator">===</span> <span class="token string">'function'</span> </span>
+<span class="line">      <span class="token operator">?</span> rules<span class="token punctuation">[</span>key<span class="token punctuation">]</span><span class="token punctuation">(</span>val<span class="token punctuation">)</span> </span>
+<span class="line">      <span class="token operator">:</span> <span class="token string">'***'</span><span class="token punctuation">;</span></span>
+<span class="line">    <span class="token keyword">return</span> val<span class="token punctuation">;</span></span>
+<span class="line">  <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span></span>
+<span class="line"><span class="token punctuation">}</span></span>
+<span class="line"></span></code></pre>
+<div class="line-numbers" aria-hidden="true" style="counter-reset:line-number 0"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><hr>
+<h3 id="五、性能指标对比-1" tabindex="-1"><a class="header-anchor" href="#五、性能指标对比-1"><span>五、性能指标对比</span></a></h3>
+<table>
+<thead>
+<tr>
+<th>方案</th>
+<th>内存占用</th>
+<th>网络消耗</th>
+<th>兼容性</th>
+<th>数据完整性</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Beacon API</td>
+<td>低</td>
+<td>中</td>
+<td>IE ❌</td>
+<td>高</td>
+</tr>
+<tr>
+<td>Image Pixel</td>
+<td>最低</td>
+<td>低</td>
+<td>全兼容</td>
+<td>最低</td>
+</tr>
+<tr>
+<td>XHR</td>
+<td>中</td>
+<td>高</td>
+<td>IE10+</td>
+<td>最高</td>
+</tr>
+<tr>
+<td>WebSocket</td>
+<td>高</td>
+<td>最低</td>
+<td>IE10+</td>
+<td>高</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h3 id="六、接入示例-1" tabindex="-1"><a class="header-anchor" href="#六、接入示例-1"><span>六、接入示例</span></a></h3>
+<div class="language-html line-numbers-mode" data-highlighter="prismjs" data-ext="html" data-title="html"><pre v-pre><code><span class="line"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>script</span><span class="token punctuation">></span></span><span class="token script"><span class="token language-javascript"></span>
+<span class="line">  window<span class="token punctuation">.</span>__LOG_SDK_CONFIG__ <span class="token operator">=</span> <span class="token punctuation">{</span></span>
+<span class="line">    <span class="token literal-property property">endpoint</span><span class="token operator">:</span> <span class="token string">"https://log.yourdomain.com"</span><span class="token punctuation">,</span></span>
+<span class="line">    <span class="token literal-property property">appId</span><span class="token operator">:</span> <span class="token string">"YOUR_APP_ID"</span><span class="token punctuation">,</span></span>
+<span class="line">    <span class="token literal-property property">plugins</span><span class="token operator">:</span> <span class="token punctuation">[</span>PerformancePlugin<span class="token punctuation">,</span> ErrorPlugin<span class="token punctuation">]</span><span class="token punctuation">,</span></span>
+<span class="line">    <span class="token literal-property property">sampling</span><span class="token operator">:</span> <span class="token punctuation">{</span></span>
+<span class="line">      <span class="token literal-property property">error</span><span class="token operator">:</span> <span class="token number">1.0</span><span class="token punctuation">,</span>    <span class="token comment">// 错误全采集</span></span>
+<span class="line">      <span class="token literal-property property">click</span><span class="token operator">:</span> <span class="token number">0.2</span>    <span class="token comment">// 点击20%采样</span></span>
+<span class="line">    <span class="token punctuation">}</span></span>
+<span class="line">  <span class="token punctuation">}</span><span class="token punctuation">;</span></span>
+<span class="line"></span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>script</span><span class="token punctuation">></span></span></span>
+<span class="line"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>script</span> <span class="token attr-name">async</span> <span class="token attr-name">src</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>https://cdn.yourdomain.com/log-sdk.v2.min.js<span class="token punctuation">"</span></span><span class="token punctuation">></span></span><span class="token script"></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>script</span><span class="token punctuation">></span></span></span>
+<span class="line"></span></code></pre>
+<div class="line-numbers" aria-hidden="true" style="counter-reset:line-number 0"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><hr>
+<h3 id="七、关键决策点-1" tabindex="-1"><a class="header-anchor" href="#七、关键决策点-1"><span>七、关键决策点</span></a></h3>
+<ol>
+<li><strong>传输协议选择</strong>：优先 Beacon API，降级到 Image 像素打点。</li>
+<li><strong>数据序列化</strong>：JSON → Protocol Buffers（体积减少 60%）。</li>
+<li><strong>缓存策略</strong>：LRU 缓存 + 指数退避重试。</li>
+<li><strong>错误隔离</strong>：每个处理步骤使用 try/catch 包裹。</li>
+<li><strong>Tree-shaking</strong>：按需加载插件，基础包保持 &lt; 10KB。</li>
+</ol>
+<p>通过以上设计，可实现日亿级数据量的可靠采集，在 3G 网络下额外资源消耗 &lt; 5%，CPU 峰值占用 &lt; 3%，达到生产环境可用标准。</p>
+<h2 id="前端如何给网页增加水印-并且如何防止水印被移除" tabindex="-1"><a class="header-anchor" href="#前端如何给网页增加水印-并且如何防止水印被移除"><span>前端如何给网页增加水印？并且如何防止水印被移除？</span></a></h2>
+<p>给网页增加水印有多种方法，但为了让水印不容易被移除，你需要考虑在多个层次进行防护。以下是几种常见的方法：</p>
+<h3 id="_1-css-水印-前端页面层级" tabindex="-1"><a class="header-anchor" href="#_1-css-水印-前端页面层级"><span>1. <strong>CSS 水印（前端页面层级）</strong></span></a></h3>
+<p>使用 CSS 给网页添加水印是最简单的方法，但这种方式容易被开发者通过修改页面样式或删除元素来移除。下面是一个基础示例：</p>
+<div class="language-css line-numbers-mode" data-highlighter="prismjs" data-ext="css" data-title="css"><pre v-pre><code><span class="line"><span class="token selector">body</span> <span class="token punctuation">{</span></span>
+<span class="line">    <span class="token property">position</span><span class="token punctuation">:</span> relative<span class="token punctuation">;</span></span>
+<span class="line"><span class="token punctuation">}</span></span>
+<span class="line"></span>
+<span class="line"><span class="token selector">.watermark</span> <span class="token punctuation">{</span></span>
+<span class="line">    <span class="token property">position</span><span class="token punctuation">:</span> absolute<span class="token punctuation">;</span></span>
+<span class="line">    <span class="token property">top</span><span class="token punctuation">:</span> 50%<span class="token punctuation">;</span></span>
+<span class="line">    <span class="token property">left</span><span class="token punctuation">:</span> 50%<span class="token punctuation">;</span></span>
+<span class="line">    <span class="token property">transform</span><span class="token punctuation">:</span> <span class="token function">translate</span><span class="token punctuation">(</span>-50%<span class="token punctuation">,</span> -50%<span class="token punctuation">)</span><span class="token punctuation">;</span></span>
+<span class="line">    <span class="token property">font-size</span><span class="token punctuation">:</span> 50px<span class="token punctuation">;</span></span>
+<span class="line">    <span class="token property">color</span><span class="token punctuation">:</span> <span class="token function">rgba</span><span class="token punctuation">(</span>0<span class="token punctuation">,</span> 0<span class="token punctuation">,</span> 0<span class="token punctuation">,</span> 0.15<span class="token punctuation">)</span><span class="token punctuation">;</span></span>
+<span class="line">    <span class="token property">white-space</span><span class="token punctuation">:</span> nowrap<span class="token punctuation">;</span></span>
+<span class="line">    <span class="token property">z-index</span><span class="token punctuation">:</span> 9999<span class="token punctuation">;</span></span>
+<span class="line">    <span class="token property">pointer-events</span><span class="token punctuation">:</span> none<span class="token punctuation">;</span> <span class="token comment">/* 让水印不会影响点击操作 */</span></span>
+<span class="line"><span class="token punctuation">}</span></span>
+<span class="line"></span></code></pre>
+<div class="line-numbers" aria-hidden="true" style="counter-reset:line-number 0"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><div class="language-html line-numbers-mode" data-highlighter="prismjs" data-ext="html" data-title="html"><pre v-pre><code><span class="line"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>div</span> <span class="token attr-name">class</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>watermark<span class="token punctuation">"</span></span><span class="token punctuation">></span></span>版权水印<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>div</span><span class="token punctuation">></span></span></span>
+<span class="line"></span></code></pre>
+<div class="line-numbers" aria-hidden="true" style="counter-reset:line-number 0"><div class="line-number"></div></div></div><p><strong>防止移除方法：</strong></p>
+<ul>
+<li>
+<p><strong>动态插入</strong>：通过 JavaScript 动态插入水印，减少开发者在源代码中直接修改的机会。</p>
+</li>
+<li>
+<p><strong>防止右键菜单</strong>：禁用右键菜单，阻止开发者通过右键删除水印元素。</p>
+<div class="language-javascript line-numbers-mode" data-highlighter="prismjs" data-ext="js" data-title="js"><pre v-pre><code><span class="line">document<span class="token punctuation">.</span><span class="token function">addEventListener</span><span class="token punctuation">(</span><span class="token string">'contextmenu'</span><span class="token punctuation">,</span> <span class="token keyword">function</span><span class="token punctuation">(</span><span class="token parameter">e</span><span class="token punctuation">)</span> <span class="token punctuation">{</span></span>
+<span class="line">    e<span class="token punctuation">.</span><span class="token function">preventDefault</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">// 禁止右键</span></span>
+<span class="line"><span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span></span>
+<span class="line"></span></code></pre>
+<div class="line-numbers" aria-hidden="true" style="counter-reset:line-number 0"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div></li>
+</ul>
+<h3 id="_2-canvas-绘制水印-防止被简单移除" tabindex="-1"><a class="header-anchor" href="#_2-canvas-绘制水印-防止被简单移除"><span>2. <strong>Canvas 绘制水印（防止被简单移除）</strong></span></a></h3>
+<p>使用 HTML5 <code v-pre>&lt;canvas&gt;</code> 来绘制水印是一种更为有效的防护方式，因为水印直接嵌入到页面的图形层，而不是通过 DOM 元素呈现。这意味着开发者即使想移除水印，也需要处理整个画布。</p>
+<p><strong>示例：</strong></p>
+<div class="language-html line-numbers-mode" data-highlighter="prismjs" data-ext="html" data-title="html"><pre v-pre><code><span class="line"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>canvas</span> <span class="token attr-name">id</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>watermarkCanvas<span class="token punctuation">"</span></span> <span class="token special-attr"><span class="token attr-name">style</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span><span class="token value css language-css"><span class="token property">position</span><span class="token punctuation">:</span> fixed<span class="token punctuation">;</span> <span class="token property">top</span><span class="token punctuation">:</span> 0<span class="token punctuation">;</span> <span class="token property">left</span><span class="token punctuation">:</span> 0<span class="token punctuation">;</span> <span class="token property">z-index</span><span class="token punctuation">:</span> 9999<span class="token punctuation">;</span> <span class="token property">pointer-events</span><span class="token punctuation">:</span> none<span class="token punctuation">;</span></span><span class="token punctuation">"</span></span></span><span class="token punctuation">></span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>canvas</span><span class="token punctuation">></span></span></span>
+<span class="line"></span>
+<span class="line"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>script</span><span class="token punctuation">></span></span><span class="token script"><span class="token language-javascript"></span>
+<span class="line">window<span class="token punctuation">.</span><span class="token function-variable function">onload</span> <span class="token operator">=</span> <span class="token keyword">function</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span></span>
+<span class="line">    <span class="token keyword">const</span> canvas <span class="token operator">=</span> document<span class="token punctuation">.</span><span class="token function">getElementById</span><span class="token punctuation">(</span><span class="token string">'watermarkCanvas'</span><span class="token punctuation">)</span><span class="token punctuation">;</span></span>
+<span class="line">    <span class="token keyword">const</span> ctx <span class="token operator">=</span> canvas<span class="token punctuation">.</span><span class="token function">getContext</span><span class="token punctuation">(</span><span class="token string">'2d'</span><span class="token punctuation">)</span><span class="token punctuation">;</span></span>
+<span class="line">    <span class="token keyword">const</span> text <span class="token operator">=</span> <span class="token string">'版权水印'</span><span class="token punctuation">;</span></span>
+<span class="line">    <span class="token keyword">const</span> fontSize <span class="token operator">=</span> <span class="token number">50</span><span class="token punctuation">;</span></span>
+<span class="line"></span>
+<span class="line">    <span class="token comment">// 设置画布尺寸</span></span>
+<span class="line">    canvas<span class="token punctuation">.</span>width <span class="token operator">=</span> window<span class="token punctuation">.</span>innerWidth<span class="token punctuation">;</span></span>
+<span class="line">    canvas<span class="token punctuation">.</span>height <span class="token operator">=</span> window<span class="token punctuation">.</span>innerHeight<span class="token punctuation">;</span></span>
+<span class="line"></span>
+<span class="line">    <span class="token comment">// 设置文字样式</span></span>
+<span class="line">    ctx<span class="token punctuation">.</span>font <span class="token operator">=</span> <span class="token template-string"><span class="token template-punctuation string">`</span><span class="token interpolation"><span class="token interpolation-punctuation punctuation">${</span>fontSize<span class="token interpolation-punctuation punctuation">}</span></span><span class="token string">px Arial</span><span class="token template-punctuation string">`</span></span><span class="token punctuation">;</span></span>
+<span class="line">    ctx<span class="token punctuation">.</span>fillStyle <span class="token operator">=</span> <span class="token string">'rgba(0, 0, 0, 0.15)'</span><span class="token punctuation">;</span></span>
+<span class="line">    ctx<span class="token punctuation">.</span>textAlign <span class="token operator">=</span> <span class="token string">'center'</span><span class="token punctuation">;</span></span>
+<span class="line">    ctx<span class="token punctuation">.</span>textBaseline <span class="token operator">=</span> <span class="token string">'middle'</span><span class="token punctuation">;</span></span>
+<span class="line"></span>
+<span class="line">    <span class="token comment">// 绘制水印</span></span>
+<span class="line">    <span class="token keyword">const</span> rows <span class="token operator">=</span> Math<span class="token punctuation">.</span><span class="token function">floor</span><span class="token punctuation">(</span>canvas<span class="token punctuation">.</span>height <span class="token operator">/</span> fontSize<span class="token punctuation">)</span><span class="token punctuation">;</span></span>
+<span class="line">    <span class="token keyword">const</span> cols <span class="token operator">=</span> Math<span class="token punctuation">.</span><span class="token function">floor</span><span class="token punctuation">(</span>canvas<span class="token punctuation">.</span>width <span class="token operator">/</span> fontSize<span class="token punctuation">)</span><span class="token punctuation">;</span></span>
+<span class="line">    <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">let</span> i <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> i <span class="token operator">&lt;</span> rows<span class="token punctuation">;</span> i<span class="token operator">++</span><span class="token punctuation">)</span> <span class="token punctuation">{</span></span>
+<span class="line">        <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">let</span> j <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> j <span class="token operator">&lt;</span> cols<span class="token punctuation">;</span> j<span class="token operator">++</span><span class="token punctuation">)</span> <span class="token punctuation">{</span></span>
+<span class="line">            ctx<span class="token punctuation">.</span><span class="token function">fillText</span><span class="token punctuation">(</span>text<span class="token punctuation">,</span> j <span class="token operator">*</span> fontSize <span class="token operator">*</span> <span class="token number">2</span> <span class="token operator">+</span> fontSize<span class="token punctuation">,</span> i <span class="token operator">*</span> fontSize <span class="token operator">*</span> <span class="token number">2</span> <span class="token operator">+</span> fontSize<span class="token punctuation">)</span><span class="token punctuation">;</span></span>
+<span class="line">        <span class="token punctuation">}</span></span>
+<span class="line">    <span class="token punctuation">}</span></span>
+<span class="line"><span class="token punctuation">}</span><span class="token punctuation">;</span></span>
+<span class="line"></span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>script</span><span class="token punctuation">></span></span></span>
+<span class="line"></span></code></pre>
+<div class="line-numbers" aria-hidden="true" style="counter-reset:line-number 0"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><p><strong>防止移除方法：</strong></p>
+<ul>
+<li><strong>避免 DOM 操作</strong>：<code v-pre>&lt;canvas&gt;</code> 元素通过图像渲染水印，开发者无法直接通过 CSS 或 JS 移除文本。</li>
+<li><strong>加密水印文本</strong>：可以加密或混淆水印文本内容，使得即使是对页面源代码进行反编译，也难以识别水印的内容。</li>
+</ul>
+<h3 id="_3-背景图片水印-嵌入图像" tabindex="-1"><a class="header-anchor" href="#_3-背景图片水印-嵌入图像"><span>3. <strong>背景图片水印（嵌入图像）</strong></span></a></h3>
+<p>将水印嵌入页面的背景图片中也是一种常见的方式。你可以使用合成图片工具（如 Photoshop）创建带水印的背景图片，然后将其作为网页的背景。</p>
+<p><strong>示例：</strong></p>
+<div class="language-css line-numbers-mode" data-highlighter="prismjs" data-ext="css" data-title="css"><pre v-pre><code><span class="line"><span class="token selector">body</span> <span class="token punctuation">{</span></span>
+<span class="line">    <span class="token property">background-image</span><span class="token punctuation">:</span> <span class="token url"><span class="token function">url</span><span class="token punctuation">(</span><span class="token string url">'your-watermark-image.png'</span><span class="token punctuation">)</span></span><span class="token punctuation">;</span></span>
+<span class="line">    <span class="token property">background-repeat</span><span class="token punctuation">:</span> no-repeat<span class="token punctuation">;</span></span>
+<span class="line">    <span class="token property">background-position</span><span class="token punctuation">:</span> center center<span class="token punctuation">;</span></span>
+<span class="line">    <span class="token property">background-size</span><span class="token punctuation">:</span> cover<span class="token punctuation">;</span></span>
+<span class="line"><span class="token punctuation">}</span></span>
+<span class="line"></span></code></pre>
+<div class="line-numbers" aria-hidden="true" style="counter-reset:line-number 0"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><p><strong>防止移除方法：</strong></p>
+<ul>
+<li><strong>图片加密</strong>：将水印图像加密或使用类似动态水印的方式生成，这样即使图像被下载，也不能轻易识别水印内容。</li>
+<li><strong>分层设计</strong>：在图片中将水印分布到多个图层中，即使开发者去除背景图，水印也会部分保留。</li>
+</ul>
+<h3 id="_4-使用-svg-水印-可变形且嵌入dom" tabindex="-1"><a class="header-anchor" href="#_4-使用-svg-水印-可变形且嵌入dom"><span>4. <strong>使用 SVG 水印（可变形且嵌入DOM）</strong></span></a></h3>
+<p>SVG 水印是一种比较灵活且难以去除的方法。你可以在页面中直接插入一个包含水印内容的 SVG 图像。</p>
+<p><strong>示例：</strong></p>
+<div class="language-html line-numbers-mode" data-highlighter="prismjs" data-ext="html" data-title="html"><pre v-pre><code><span class="line"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>svg</span> <span class="token attr-name">width</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>100%<span class="token punctuation">"</span></span> <span class="token attr-name">height</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>100%<span class="token punctuation">"</span></span> <span class="token special-attr"><span class="token attr-name">style</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span><span class="token value css language-css"><span class="token property">position</span><span class="token punctuation">:</span> absolute<span class="token punctuation">;</span> <span class="token property">top</span><span class="token punctuation">:</span> 0<span class="token punctuation">;</span> <span class="token property">left</span><span class="token punctuation">:</span> 0<span class="token punctuation">;</span> <span class="token property">pointer-events</span><span class="token punctuation">:</span> none<span class="token punctuation">;</span> <span class="token property">z-index</span><span class="token punctuation">:</span> 9999<span class="token punctuation">;</span></span><span class="token punctuation">"</span></span></span><span class="token punctuation">></span></span></span>
+<span class="line">    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>text</span> <span class="token attr-name">x</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>50%<span class="token punctuation">"</span></span> <span class="token attr-name">y</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>50%<span class="token punctuation">"</span></span> <span class="token attr-name">font-size</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>50<span class="token punctuation">"</span></span> <span class="token attr-name">fill</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>rgba(0, 0, 0, 0.15)<span class="token punctuation">"</span></span> <span class="token attr-name">text-anchor</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>middle<span class="token punctuation">"</span></span> <span class="token attr-name">dominant-baseline</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>middle<span class="token punctuation">"</span></span><span class="token punctuation">></span></span></span>
+<span class="line">        版权水印</span>
+<span class="line">    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>text</span><span class="token punctuation">></span></span></span>
+<span class="line"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>svg</span><span class="token punctuation">></span></span></span>
+<span class="line"></span></code></pre>
+<div class="line-numbers" aria-hidden="true" style="counter-reset:line-number 0"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><p><strong>防止移除方法：</strong></p>
+<ul>
+<li><strong>加密和动态生成</strong>：动态生成 SVG 内容，并嵌入加密或混淆的水印文本。</li>
+<li><strong>嵌入多个水印层</strong>：可以通过嵌入多个透明的、位置分散的水印，增加移除难度。</li>
+</ul>
+<h3 id="_5-javascript-水印-嵌入文档" tabindex="-1"><a class="header-anchor" href="#_5-javascript-水印-嵌入文档"><span>5. <strong>JavaScript 水印（嵌入文档）</strong></span></a></h3>
+<p>使用 JavaScript 动态添加水印内容到页面，可以灵活调整水印的样式、位置等。通过动态渲染方式，可以增加移除水印的难度。</p>
+<p><strong>示例：</strong></p>
+<div class="language-javascript line-numbers-mode" data-highlighter="prismjs" data-ext="js" data-title="js"><pre v-pre><code><span class="line">window<span class="token punctuation">.</span><span class="token function-variable function">onload</span> <span class="token operator">=</span> <span class="token keyword">function</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span></span>
+<span class="line">    <span class="token keyword">const</span> watermarkText <span class="token operator">=</span> <span class="token string">'版权水印'</span><span class="token punctuation">;</span></span>
+<span class="line">    <span class="token keyword">const</span> watermarkDiv <span class="token operator">=</span> document<span class="token punctuation">.</span><span class="token function">createElement</span><span class="token punctuation">(</span><span class="token string">'div'</span><span class="token punctuation">)</span><span class="token punctuation">;</span></span>
+<span class="line">    watermarkDiv<span class="token punctuation">.</span>innerText <span class="token operator">=</span> watermarkText<span class="token punctuation">;</span></span>
+<span class="line">    watermarkDiv<span class="token punctuation">.</span>style<span class="token punctuation">.</span>position <span class="token operator">=</span> <span class="token string">'fixed'</span><span class="token punctuation">;</span></span>
+<span class="line">    watermarkDiv<span class="token punctuation">.</span>style<span class="token punctuation">.</span>top <span class="token operator">=</span> <span class="token string">'50%'</span><span class="token punctuation">;</span></span>
+<span class="line">    watermarkDiv<span class="token punctuation">.</span>style<span class="token punctuation">.</span>left <span class="token operator">=</span> <span class="token string">'50%'</span><span class="token punctuation">;</span></span>
+<span class="line">    watermarkDiv<span class="token punctuation">.</span>style<span class="token punctuation">.</span>transform <span class="token operator">=</span> <span class="token string">'translate(-50%, -50%)'</span><span class="token punctuation">;</span></span>
+<span class="line">    watermarkDiv<span class="token punctuation">.</span>style<span class="token punctuation">.</span>fontSize <span class="token operator">=</span> <span class="token string">'50px'</span><span class="token punctuation">;</span></span>
+<span class="line">    watermarkDiv<span class="token punctuation">.</span>style<span class="token punctuation">.</span>color <span class="token operator">=</span> <span class="token string">'rgba(0, 0, 0, 0.1)'</span><span class="token punctuation">;</span></span>
+<span class="line">    watermarkDiv<span class="token punctuation">.</span>style<span class="token punctuation">.</span>pointerEvents <span class="token operator">=</span> <span class="token string">'none'</span><span class="token punctuation">;</span></span>
+<span class="line">    watermarkDiv<span class="token punctuation">.</span>style<span class="token punctuation">.</span>zIndex <span class="token operator">=</span> <span class="token number">9999</span><span class="token punctuation">;</span></span>
+<span class="line">    document<span class="token punctuation">.</span>body<span class="token punctuation">.</span><span class="token function">appendChild</span><span class="token punctuation">(</span>watermarkDiv<span class="token punctuation">)</span><span class="token punctuation">;</span></span>
+<span class="line"><span class="token punctuation">}</span><span class="token punctuation">;</span></span>
+<span class="line"></span></code></pre>
+<div class="line-numbers" aria-hidden="true" style="counter-reset:line-number 0"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><p><strong>防止移除方法：</strong></p>
+<ul>
+<li><strong>动态生成和隐藏</strong>：通过动态生成并嵌入水印内容，避免固定 DOM 元素被删除。</li>
+<li><strong>防止修改</strong>：通过事件监听（如 DOM 变化监听）监控页面对水印的修改，并及时恢复。</li>
+</ul>
+<h3 id="_6-防止水印被移除" tabindex="-1"><a class="header-anchor" href="#_6-防止水印被移除"><span>6. <strong>防止水印被移除</strong></span></a></h3>
+<p>通过组合多种技术，可以有效增加水印的移除难度：</p>
+<ul>
+<li><strong>嵌入多个水印层</strong>：在页面的多个地方插入水印，而不是依赖单一的水印。</li>
+<li><strong>使用混淆和加密技术</strong>：对水印文本进行加密，或者对水印元素进行混淆。</li>
+<li><strong>动态渲染水印</strong>：避免在页面加载时直接渲染水印，而是通过 JavaScript 动态插入，增加开发者反向工程的难度。</li>
+<li><strong>防止页面源代码被修改</strong>：禁止右键点击、禁用开发者工具、监控 DOM 修改等措施。</li>
+</ul>
+<p>通过综合这些策略，可以增加水印的有效性和防止其被轻易移除。</p>
+<p>https://juejin.cn/post/7335337310547017768#heading-12</p>
 </div></template>
 
 

@@ -293,3 +293,147 @@ fetch(url, options)
 
 浏览器缓存机制能够有效减少资源加载时间，提高页面响应速度，但需要合理配置缓存策略，确保客户端和服务器之间的数据一致性和安全性。
 
+
+## 5、promise有几种状态，可以重复改变吗？
+
+在 JavaScript 中，Promise 有三种状态：
+
+1. **Pending（等待态）**：这是 Promise 创建后初始的状态，表示异步操作尚未完成。
+2. **Fulfilled（成功态）**：表示异步操作成功完成，此时 Promise 会返回一个成功的结果。
+3. **Rejected（失败态）**：表示异步操作失败，此时 Promise 会返回一个失败的原因（错误信息）。
+
+一旦 Promise 从 **Pending** 状态转变为 **Fulfilled** 或 **Rejected**，它的状态就固定下来，无法再次改变。这意味着无论在后续代码中如何尝试，已经 settled（定型）的 Promise 都不会重复改变状态。这种设计确保了 Promise 的结果具有确定性，便于后续的链式调用和错误处理。
+
+简单示例说明状态不可重复改变：
+
+```javascript
+let promise = new Promise((resolve, reject) => {
+  resolve("Success");  // 状态从 pending 转为 fulfilled
+  reject("Error");     // 这行代码无效，因为状态已固定为 fulfilled
+});
+
+promise.then(result => {
+  console.log(result); // 输出 "Success"
+}).catch(error => {
+  console.error(error); // 不会执行
+});
+```
+
+在这个例子中，即使调用了 `reject("Error")`，Promise 的状态已经由 `resolve("Success")` 固定为 **Fulfilled**，因此后续的 `reject` 调用不会对状态产生任何影响。
+
+总结：  
+- **状态数量**：三种（pending、fulfilled、rejected）。  
+- **状态不可变**：一旦 Promise 状态确定（不论是 fulfilled 还是 rejected），就不能再改变。
+
+## 6、说一说跨域请求
+
+**跨域请求**（Cross-Origin Request）是指在一个域名下的网页尝试请求另一个域名上的资源。由于浏览器的同源策略（Same-Origin Policy），默认情况下，网页只能向与其同一源（协议、域名和端口都相同）的服务器发送请求。这是为了防止恶意网站访问用户的敏感数据。
+
+### 什么是同源策略？
+同源策略是浏览器的一种安全机制，它要求：
+- **协议相同**（如 `http` 和 `https` 不同）
+- **域名相同**
+- **端口相同**（如 `80` 和 `8080` 不同）
+
+只有在这三者都相同的情况下，浏览器才允许进行资源共享，否则会认为是“跨域”请求，默认会阻止。
+
+### 跨域请求的场景
+1. **通过 `<script>` 标签加载资源**：
+   - 这种方式并不受同源策略的限制，因为 `<script>` 标签是允许跨域的，通常用于 JSONP（JSON with Padding）。
+   
+2. **AJAX 请求**：
+   - 通过 XMLHttpRequest 或 Fetch API 发起的请求通常会被浏览器的同源策略所限制，导致跨域请求失败。
+
+3. **WebSocket**：
+   - WebSocket 协议不受同源策略的限制，可以跨域连接。
+
+### 跨域请求的解决方式
+为了实现跨域请求，开发者可以使用以下几种方法：
+
+#### 1. **CORS（跨域资源共享）**
+   CORS 是一种允许服务器明确指定允许哪些域进行访问的机制。它通过设置 HTTP 头来告知浏览器跨域请求是否被允许。
+
+   - **服务器端配置**：通过在服务器端返回 `Access-Control-Allow-Origin` 头部来声明允许的跨域源。
+   
+   示例：
+   - 服务器响应头：
+     ```
+     Access-Control-Allow-Origin: *
+     ```
+     或者指定某个域：
+     ```
+     Access-Control-Allow-Origin: http://example.com
+     ```
+
+   - 其他常见 CORS 头：
+     - `Access-Control-Allow-Methods`: 允许的 HTTP 方法（如 `GET`, `POST`, `PUT` 等）。
+     - `Access-Control-Allow-Headers`: 允许的请求头。
+     - `Access-Control-Allow-Credentials`: 是否允许发送 cookies 或认证信息。
+
+   **预检请求（Preflight Request）**：
+   - 对于某些跨域请求（如使用了自定义头或非简单方法的请求），浏览器会首先发送一个 OPTIONS 请求来检查目标服务器是否允许该跨域请求。这就是所谓的预检请求。
+
+   例如：
+   ```bash
+   OPTIONS /some-resource HTTP/1.1
+   Origin: http://example.com
+   Access-Control-Request-Method: POST
+   ```
+
+#### 2. **JSONP（JSON with Padding）**
+   - JSONP 是一种通过 `<script>` 标签的跨域机制来解决跨域请求的技术。它通过动态创建 `<script>` 标签来绕过浏览器的同源策略，但只支持 `GET` 请求。
+   
+   示例：
+   ```html
+   <script src="https://example.com/data?callback=myFunction"></script>
+   <script>
+   function myFunction(data) {
+       console.log(data);
+   }
+   </script>
+   ```
+
+#### 3. **代理（Proxy）**
+   - 通过设置代理服务器，使客户端的请求通过服务器转发。代理服务器与目标资源服务器进行通信，并将响应返回给客户端，从而避免了浏览器的同源策略限制。
+   
+   - 常见的做法是，前端请求发送到与前端同域的代理服务器，再由代理服务器转发请求到目标服务器。
+   
+   示例：
+   ```js
+   // 前端请求通过代理服务器转发
+   fetch('/api/some-data')  // 代理请求
+   .then(response => response.json())
+   .then(data => console.log(data));
+   ```
+
+   代理服务器可以使用 Node.js（如 `http-proxy-middleware`）或者其他后端技术来实现。
+
+#### 4. **WebSocket**
+   - WebSocket 是一种允许跨域的通信协议，可以用于双向通信。它不受同源策略的限制，可以用来解决实时应用（如聊天应用、实时数据更新）中的跨域问题。
+
+   示例：
+   ```javascript
+   const socket = new WebSocket('ws://example.com/socket');
+   socket.onopen = () => {
+       socket.send('Hello, Server!');
+   };
+   ```
+
+#### 5. **Iframe + postMessage**
+   - 使用 `<iframe>` 标签嵌套跨域的内容，借助 `window.postMessage` 方法实现父页面与 iframe 页面之间的安全通信。
+
+   示例：
+   ```javascript
+   // 父页面发送消息给 iframe
+   iframe.contentWindow.postMessage('Hello from parent', 'http://example.com');
+   
+   // iframe 页面接收消息
+   window.addEventListener('message', (event) => {
+       if (event.origin !== 'http://example.com') return;
+       console.log(event.data);
+   });
+   ```
+
+### 总结：
+跨域请求本质上是浏览器的一种安全机制，用来防止恶意网站获取用户信息。为了解决这个问题，可以使用 CORS、JSONP、代理服务器、WebSocket 或 `iframe + postMessage` 等方式来绕过跨域限制。在现代前端开发中，**CORS** 是最常用的解决方案，因为它是标准化的，并且支持多种 HTTP 方法。
+

@@ -337,6 +337,152 @@
 <li><strong>协商缓存</strong> 则是通过与服务器的通信来验证缓存是否有效，只有在缓存失效时才重新加载资源。</li>
 </ul>
 <p>浏览器缓存机制能够有效减少资源加载时间，提高页面响应速度，但需要合理配置缓存策略，确保客户端和服务器之间的数据一致性和安全性。</p>
+<h2 id="_5、promise有几种状态-可以重复改变吗" tabindex="-1"><a class="header-anchor" href="#_5、promise有几种状态-可以重复改变吗"><span>5、promise有几种状态，可以重复改变吗？</span></a></h2>
+<p>在 JavaScript 中，Promise 有三种状态：</p>
+<ol>
+<li><strong>Pending（等待态）</strong>：这是 Promise 创建后初始的状态，表示异步操作尚未完成。</li>
+<li><strong>Fulfilled（成功态）</strong>：表示异步操作成功完成，此时 Promise 会返回一个成功的结果。</li>
+<li><strong>Rejected（失败态）</strong>：表示异步操作失败，此时 Promise 会返回一个失败的原因（错误信息）。</li>
+</ol>
+<p>一旦 Promise 从 <strong>Pending</strong> 状态转变为 <strong>Fulfilled</strong> 或 <strong>Rejected</strong>，它的状态就固定下来，无法再次改变。这意味着无论在后续代码中如何尝试，已经 settled（定型）的 Promise 都不会重复改变状态。这种设计确保了 Promise 的结果具有确定性，便于后续的链式调用和错误处理。</p>
+<p>简单示例说明状态不可重复改变：</p>
+<div class="language-javascript line-numbers-mode" data-highlighter="prismjs" data-ext="js" data-title="js"><pre v-pre><code><span class="line"><span class="token keyword">let</span> promise <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Promise</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token parameter">resolve<span class="token punctuation">,</span> reject</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span></span>
+<span class="line">  <span class="token function">resolve</span><span class="token punctuation">(</span><span class="token string">"Success"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>  <span class="token comment">// 状态从 pending 转为 fulfilled</span></span>
+<span class="line">  <span class="token function">reject</span><span class="token punctuation">(</span><span class="token string">"Error"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>     <span class="token comment">// 这行代码无效，因为状态已固定为 fulfilled</span></span>
+<span class="line"><span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span></span>
+<span class="line"></span>
+<span class="line">promise<span class="token punctuation">.</span><span class="token function">then</span><span class="token punctuation">(</span><span class="token parameter">result</span> <span class="token operator">=></span> <span class="token punctuation">{</span></span>
+<span class="line">  console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span>result<span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">// 输出 "Success"</span></span>
+<span class="line"><span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">catch</span><span class="token punctuation">(</span><span class="token parameter">error</span> <span class="token operator">=></span> <span class="token punctuation">{</span></span>
+<span class="line">  console<span class="token punctuation">.</span><span class="token function">error</span><span class="token punctuation">(</span>error<span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">// 不会执行</span></span>
+<span class="line"><span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span></span>
+<span class="line"></span></code></pre>
+<div class="line-numbers" aria-hidden="true" style="counter-reset:line-number 0"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><p>在这个例子中，即使调用了 <code v-pre>reject(&quot;Error&quot;)</code>，Promise 的状态已经由 <code v-pre>resolve(&quot;Success&quot;)</code> 固定为 <strong>Fulfilled</strong>，因此后续的 <code v-pre>reject</code> 调用不会对状态产生任何影响。</p>
+<p>总结：</p>
+<ul>
+<li><strong>状态数量</strong>：三种（pending、fulfilled、rejected）。</li>
+<li><strong>状态不可变</strong>：一旦 Promise 状态确定（不论是 fulfilled 还是 rejected），就不能再改变。</li>
+</ul>
+<h2 id="_6、说一说跨域请求" tabindex="-1"><a class="header-anchor" href="#_6、说一说跨域请求"><span>6、说一说跨域请求</span></a></h2>
+<p><strong>跨域请求</strong>（Cross-Origin Request）是指在一个域名下的网页尝试请求另一个域名上的资源。由于浏览器的同源策略（Same-Origin Policy），默认情况下，网页只能向与其同一源（协议、域名和端口都相同）的服务器发送请求。这是为了防止恶意网站访问用户的敏感数据。</p>
+<h3 id="什么是同源策略" tabindex="-1"><a class="header-anchor" href="#什么是同源策略"><span>什么是同源策略？</span></a></h3>
+<p>同源策略是浏览器的一种安全机制，它要求：</p>
+<ul>
+<li><strong>协议相同</strong>（如 <code v-pre>http</code> 和 <code v-pre>https</code> 不同）</li>
+<li><strong>域名相同</strong></li>
+<li><strong>端口相同</strong>（如 <code v-pre>80</code> 和 <code v-pre>8080</code> 不同）</li>
+</ul>
+<p>只有在这三者都相同的情况下，浏览器才允许进行资源共享，否则会认为是“跨域”请求，默认会阻止。</p>
+<h3 id="跨域请求的场景" tabindex="-1"><a class="header-anchor" href="#跨域请求的场景"><span>跨域请求的场景</span></a></h3>
+<ol>
+<li>
+<p><strong>通过 <code v-pre>&lt;script&gt;</code> 标签加载资源</strong>：</p>
+<ul>
+<li>这种方式并不受同源策略的限制，因为 <code v-pre>&lt;script&gt;</code> 标签是允许跨域的，通常用于 JSONP（JSON with Padding）。</li>
+</ul>
+</li>
+<li>
+<p><strong>AJAX 请求</strong>：</p>
+<ul>
+<li>通过 XMLHttpRequest 或 Fetch API 发起的请求通常会被浏览器的同源策略所限制，导致跨域请求失败。</li>
+</ul>
+</li>
+<li>
+<p><strong>WebSocket</strong>：</p>
+<ul>
+<li>WebSocket 协议不受同源策略的限制，可以跨域连接。</li>
+</ul>
+</li>
+</ol>
+<h3 id="跨域请求的解决方式" tabindex="-1"><a class="header-anchor" href="#跨域请求的解决方式"><span>跨域请求的解决方式</span></a></h3>
+<p>为了实现跨域请求，开发者可以使用以下几种方法：</p>
+<h4 id="_1-cors-跨域资源共享" tabindex="-1"><a class="header-anchor" href="#_1-cors-跨域资源共享"><span>1. <strong>CORS（跨域资源共享）</strong></span></a></h4>
+<p>CORS 是一种允许服务器明确指定允许哪些域进行访问的机制。它通过设置 HTTP 头来告知浏览器跨域请求是否被允许。</p>
+<ul>
+<li><strong>服务器端配置</strong>：通过在服务器端返回 <code v-pre>Access-Control-Allow-Origin</code> 头部来声明允许的跨域源。</li>
+</ul>
+<p>示例：</p>
+<ul>
+<li>
+<p>服务器响应头：</p>
+<div class="language-text line-numbers-mode" data-highlighter="prismjs" data-ext="text" data-title="text"><pre v-pre><code><span class="line">Access-Control-Allow-Origin: *</span>
+<span class="line"></span></code></pre>
+<div class="line-numbers" aria-hidden="true" style="counter-reset:line-number 0"><div class="line-number"></div></div></div><p>或者指定某个域：</p>
+<div class="language-text line-numbers-mode" data-highlighter="prismjs" data-ext="text" data-title="text"><pre v-pre><code><span class="line">Access-Control-Allow-Origin: http://example.com</span>
+<span class="line"></span></code></pre>
+<div class="line-numbers" aria-hidden="true" style="counter-reset:line-number 0"><div class="line-number"></div></div></div></li>
+<li>
+<p>其他常见 CORS 头：</p>
+<ul>
+<li><code v-pre>Access-Control-Allow-Methods</code>: 允许的 HTTP 方法（如 <code v-pre>GET</code>, <code v-pre>POST</code>, <code v-pre>PUT</code> 等）。</li>
+<li><code v-pre>Access-Control-Allow-Headers</code>: 允许的请求头。</li>
+<li><code v-pre>Access-Control-Allow-Credentials</code>: 是否允许发送 cookies 或认证信息。</li>
+</ul>
+</li>
+</ul>
+<p><strong>预检请求（Preflight Request）</strong>：</p>
+<ul>
+<li>对于某些跨域请求（如使用了自定义头或非简单方法的请求），浏览器会首先发送一个 OPTIONS 请求来检查目标服务器是否允许该跨域请求。这就是所谓的预检请求。</li>
+</ul>
+<p>例如：</p>
+<div class="language-bash line-numbers-mode" data-highlighter="prismjs" data-ext="sh" data-title="sh"><pre v-pre><code><span class="line">OPTIONS /some-resource HTTP/1.1</span>
+<span class="line">Origin: http://example.com</span>
+<span class="line">Access-Control-Request-Method: POST</span>
+<span class="line"></span></code></pre>
+<div class="line-numbers" aria-hidden="true" style="counter-reset:line-number 0"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><h4 id="_2-jsonp-json-with-padding" tabindex="-1"><a class="header-anchor" href="#_2-jsonp-json-with-padding"><span>2. <strong>JSONP（JSON with Padding）</strong></span></a></h4>
+<ul>
+<li>JSONP 是一种通过 <code v-pre>&lt;script&gt;</code> 标签的跨域机制来解决跨域请求的技术。它通过动态创建 <code v-pre>&lt;script&gt;</code> 标签来绕过浏览器的同源策略，但只支持 <code v-pre>GET</code> 请求。</li>
+</ul>
+<p>示例：</p>
+<div class="language-html line-numbers-mode" data-highlighter="prismjs" data-ext="html" data-title="html"><pre v-pre><code><span class="line"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>script</span> <span class="token attr-name">src</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>https://example.com/data?callback=myFunction<span class="token punctuation">"</span></span><span class="token punctuation">></span></span><span class="token script"></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>script</span><span class="token punctuation">></span></span></span>
+<span class="line"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>script</span><span class="token punctuation">></span></span><span class="token script"><span class="token language-javascript"></span>
+<span class="line"><span class="token keyword">function</span> <span class="token function">myFunction</span><span class="token punctuation">(</span><span class="token parameter">data</span><span class="token punctuation">)</span> <span class="token punctuation">{</span></span>
+<span class="line">    console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span>data<span class="token punctuation">)</span><span class="token punctuation">;</span></span>
+<span class="line"><span class="token punctuation">}</span></span>
+<span class="line"></span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>script</span><span class="token punctuation">></span></span></span>
+<span class="line"></span></code></pre>
+<div class="line-numbers" aria-hidden="true" style="counter-reset:line-number 0"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><h4 id="_3-代理-proxy" tabindex="-1"><a class="header-anchor" href="#_3-代理-proxy"><span>3. <strong>代理（Proxy）</strong></span></a></h4>
+<ul>
+<li>
+<p>通过设置代理服务器，使客户端的请求通过服务器转发。代理服务器与目标资源服务器进行通信，并将响应返回给客户端，从而避免了浏览器的同源策略限制。</p>
+</li>
+<li>
+<p>常见的做法是，前端请求发送到与前端同域的代理服务器，再由代理服务器转发请求到目标服务器。</p>
+</li>
+</ul>
+<p>示例：</p>
+<div class="language-javascript line-numbers-mode" data-highlighter="prismjs" data-ext="js" data-title="js"><pre v-pre><code><span class="line"><span class="token comment">// 前端请求通过代理服务器转发</span></span>
+<span class="line"><span class="token function">fetch</span><span class="token punctuation">(</span><span class="token string">'/api/some-data'</span><span class="token punctuation">)</span>  <span class="token comment">// 代理请求</span></span>
+<span class="line"><span class="token punctuation">.</span><span class="token function">then</span><span class="token punctuation">(</span><span class="token parameter">response</span> <span class="token operator">=></span> response<span class="token punctuation">.</span><span class="token function">json</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span></span>
+<span class="line"><span class="token punctuation">.</span><span class="token function">then</span><span class="token punctuation">(</span><span class="token parameter">data</span> <span class="token operator">=></span> console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span>data<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span></span>
+<span class="line"></span></code></pre>
+<div class="line-numbers" aria-hidden="true" style="counter-reset:line-number 0"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><p>代理服务器可以使用 Node.js（如 <code v-pre>http-proxy-middleware</code>）或者其他后端技术来实现。</p>
+<h4 id="_4-websocket" tabindex="-1"><a class="header-anchor" href="#_4-websocket"><span>4. <strong>WebSocket</strong></span></a></h4>
+<ul>
+<li>WebSocket 是一种允许跨域的通信协议，可以用于双向通信。它不受同源策略的限制，可以用来解决实时应用（如聊天应用、实时数据更新）中的跨域问题。</li>
+</ul>
+<p>示例：</p>
+<div class="language-javascript line-numbers-mode" data-highlighter="prismjs" data-ext="js" data-title="js"><pre v-pre><code><span class="line"><span class="token keyword">const</span> socket <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">WebSocket</span><span class="token punctuation">(</span><span class="token string">'ws://example.com/socket'</span><span class="token punctuation">)</span><span class="token punctuation">;</span></span>
+<span class="line">socket<span class="token punctuation">.</span><span class="token function-variable function">onopen</span> <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span></span>
+<span class="line">    socket<span class="token punctuation">.</span><span class="token function">send</span><span class="token punctuation">(</span><span class="token string">'Hello, Server!'</span><span class="token punctuation">)</span><span class="token punctuation">;</span></span>
+<span class="line"><span class="token punctuation">}</span><span class="token punctuation">;</span></span>
+<span class="line"></span></code></pre>
+<div class="line-numbers" aria-hidden="true" style="counter-reset:line-number 0"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><h4 id="_5-iframe-postmessage" tabindex="-1"><a class="header-anchor" href="#_5-iframe-postmessage"><span>5. <strong>Iframe + postMessage</strong></span></a></h4>
+<ul>
+<li>使用 <code v-pre>&lt;iframe&gt;</code> 标签嵌套跨域的内容，借助 <code v-pre>window.postMessage</code> 方法实现父页面与 iframe 页面之间的安全通信。</li>
+</ul>
+<p>示例：</p>
+<div class="language-javascript line-numbers-mode" data-highlighter="prismjs" data-ext="js" data-title="js"><pre v-pre><code><span class="line"><span class="token comment">// 父页面发送消息给 iframe</span></span>
+<span class="line">iframe<span class="token punctuation">.</span>contentWindow<span class="token punctuation">.</span><span class="token function">postMessage</span><span class="token punctuation">(</span><span class="token string">'Hello from parent'</span><span class="token punctuation">,</span> <span class="token string">'http://example.com'</span><span class="token punctuation">)</span><span class="token punctuation">;</span></span>
+<span class="line"></span>
+<span class="line"><span class="token comment">// iframe 页面接收消息</span></span>
+<span class="line">window<span class="token punctuation">.</span><span class="token function">addEventListener</span><span class="token punctuation">(</span><span class="token string">'message'</span><span class="token punctuation">,</span> <span class="token punctuation">(</span><span class="token parameter">event</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span></span>
+<span class="line">    <span class="token keyword">if</span> <span class="token punctuation">(</span>event<span class="token punctuation">.</span>origin <span class="token operator">!==</span> <span class="token string">'http://example.com'</span><span class="token punctuation">)</span> <span class="token keyword">return</span><span class="token punctuation">;</span></span>
+<span class="line">    console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span>event<span class="token punctuation">.</span>data<span class="token punctuation">)</span><span class="token punctuation">;</span></span>
+<span class="line"><span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span></span>
+<span class="line"></span></code></pre>
+<div class="line-numbers" aria-hidden="true" style="counter-reset:line-number 0"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><h3 id="总结-2" tabindex="-1"><a class="header-anchor" href="#总结-2"><span>总结：</span></a></h3>
+<p>跨域请求本质上是浏览器的一种安全机制，用来防止恶意网站获取用户信息。为了解决这个问题，可以使用 CORS、JSONP、代理服务器、WebSocket 或 <code v-pre>iframe + postMessage</code> 等方式来绕过跨域限制。在现代前端开发中，<strong>CORS</strong> 是最常用的解决方案，因为它是标准化的，并且支持多种 HTTP 方法。</p>
 </div></template>
 
 

@@ -1976,12 +1976,12 @@ function maskSensitiveData(data, rules) {
 
 ### 五、性能指标对比
 
-| 方案 | 内存占用 | 网络消耗 | 兼容性 | 数据完整性 |
-|------|---------|---------|--------|-----------|
-| Beacon API | 低 | 中 | IE ❌ | 高 |
-| Image Pixel | 最低 | 低 | 全兼容 | 最低 |
-| XHR | 中 | 高 | IE10+ | 最高 |
-| WebSocket | 高 | 最低 | IE10+ | 高 |
+| 方案        | 内存占用 | 网络消耗 | 兼容性 | 数据完整性 |
+| ----------- | -------- | -------- | ------ | ---------- |
+| Beacon API  | 低       | 中       | IE ❌   | 高         |
+| Image Pixel | 最低     | 低       | 全兼容 | 最低       |
+| XHR         | 中       | 高       | IE10+  | 最高       |
+| WebSocket   | 高       | 最低     | IE10+  | 高         |
 
 ---
 
@@ -2013,7 +2013,7 @@ function maskSensitiveData(data, rules) {
 通过以上设计，可实现日亿级数据量的可靠采集，在 3G 网络下额外资源消耗 < 5%，CPU 峰值占用 < 3%，达到生产环境可用标准。
 
 
-## 你会如何设计前端日志埋点 SDK？
+## 9、你会如何设计前端日志埋点 SDK？
 
 设计一个前端日志埋点 SDK 需要综合考虑性能、扩展性、易用性和数据可靠性。以下是详细的设计思路和实现方案：
 
@@ -2193,12 +2193,12 @@ function maskSensitiveData(data, rules) {
 
 ### 五、性能指标对比
 
-| 方案 | 内存占用 | 网络消耗 | 兼容性 | 数据完整性 |
-|------|---------|---------|--------|-----------|
-| Beacon API | 低 | 中 | IE ❌ | 高 |
-| Image Pixel | 最低 | 低 | 全兼容 | 最低 |
-| XHR | 中 | 高 | IE10+ | 最高 |
-| WebSocket | 高 | 最低 | IE10+ | 高 |
+| 方案        | 内存占用 | 网络消耗 | 兼容性 | 数据完整性 |
+| ----------- | -------- | -------- | ------ | ---------- |
+| Beacon API  | 低       | 中       | IE ❌   | 高         |
+| Image Pixel | 最低     | 低       | 全兼容 | 最低       |
+| XHR         | 中       | 高       | IE10+  | 最高       |
+| WebSocket   | 高       | 最低     | IE10+  | 高         |
 
 ---
 
@@ -2230,7 +2230,8 @@ function maskSensitiveData(data, rules) {
 通过以上设计，可实现日亿级数据量的可靠采集，在 3G 网络下额外资源消耗 < 5%，CPU 峰值占用 < 3%，达到生产环境可用标准。
 
 
-## 前端如何给网页增加水印？并且如何防止水印被移除？
+## 10、前端如何给网页增加水印？并且如何防止水印被移除？
+
 
 
 给网页增加水印有多种方法，但为了让水印不容易被移除，你需要考虑在多个层次进行防护。以下是几种常见的方法：
@@ -2381,7 +2382,333 @@ function maskSensitiveData(data, rules) {
 
 通过综合这些策略，可以增加水印的有效性和防止其被轻易移除。
 
+## 11、如何在前端实现一个实时自动补全搜索框？
 
 
 
-https://juejin.cn/post/7335337310547017768#heading-12
+在前端实现一个实时自动补全搜索框，通常需要结合以下技术：
+
+1. **输入框监听**：监听用户输入，触发搜索建议。
+2. **异步请求**：向服务器发送请求，获取匹配的补全数据。
+3. **渲染建议列表**：将返回的数据渲染为下拉列表。
+4. **优化性能**：使用防抖（Debounce）减少请求频率，避免频繁请求。
+
+以下是实现步骤和代码示例：
+
+---
+
+### **原生 JavaScript 实现**
+
+#### **HTML 结构**
+```html
+<div class="autocomplete">
+  <input type="text" id="searchInput" placeholder="Search..." />
+  <ul id="suggestionsList"></ul>
+</div>
+```
+
+#### **CSS 样式**
+```css
+.autocomplete {
+  position: relative;
+  width: 300px;
+}
+
+#suggestionsList {
+  position: absolute;
+  width: 100%;
+  max-height: 200px;
+  overflow-y: auto;
+  border: 1px solid #ccc;
+  border-top: none;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  background: white;
+  z-index: 1000;
+}
+
+#suggestionsList li {
+  padding: 8px;
+  cursor: pointer;
+}
+
+#suggestionsList li:hover {
+  background-color: #f0f0f0;
+}
+```
+
+#### **JavaScript 逻辑**
+```javascript
+const searchInput = document.getElementById('searchInput');
+const suggestionsList = document.getElementById('suggestionsList');
+
+// 模拟异步获取数据
+async function fetchSuggestions(query) {
+  if (!query) return [];
+  // 模拟 API 请求
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      const mockData = ['apple', 'banana', 'cherry', 'date', 'elderberry'];
+      const filteredData = mockData.filter(item =>
+        item.toLowerCase().includes(query.toLowerCase())
+      );
+      resolve(filteredData);
+    }, 300); // 模拟延迟
+  });
+}
+
+// 渲染建议列表
+function renderSuggestions(suggestions) {
+  suggestionsList.innerHTML = '';
+  if (suggestions.length === 0) {
+    suggestionsList.style.display = 'none';
+    return;
+  }
+  suggestions.forEach((item) => {
+    const li = document.createElement('li');
+    li.textContent = item;
+    li.addEventListener('click', () => {
+      searchInput.value = item;
+      suggestionsList.style.display = 'none';
+    });
+    suggestionsList.appendChild(li);
+  });
+  suggestionsList.style.display = 'block';
+}
+
+// 防抖函数
+function debounce(func, delay) {
+  let timeoutId;
+  return function (...args) {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => func.apply(this, args), delay);
+  };
+}
+
+// 监听输入事件
+searchInput.addEventListener(
+  'input',
+  debounce(async (event) => {
+    const query = event.target.value.trim();
+    const suggestions = await fetchSuggestions(query);
+    renderSuggestions(suggestions);
+  }, 300) // 防抖延迟 300ms
+);
+
+// 点击外部隐藏建议列表
+document.addEventListener('click', (event) => {
+  if (!event.target.closest('.autocomplete')) {
+    suggestionsList.style.display = 'none';
+  }
+});
+```
+
+---
+
+### **关键点解析**
+
+1. **防抖（Debounce）**  
+   - 使用防抖减少输入时的请求频率，避免频繁触发 API 请求。
+   - 示例中设置了 300ms 的延迟。
+
+2. **异步请求**  
+   - 使用 `fetch` 或 `axios` 向服务器请求数据。
+   - 示例中通过 `setTimeout` 模拟了异步请求。
+
+3. **渲染建议列表**  
+   - 动态创建 `<li>` 元素并绑定点击事件。
+   - 点击建议项时，将内容填充到输入框并隐藏列表。
+
+4. **隐藏建议列表**  
+   - 点击页面其他区域时隐藏建议列表。
+
+---
+
+### **优化与扩展**
+
+1. **高亮匹配部分**  
+   - 在渲染建议时，使用正则表达式高亮匹配的部分：
+     ```javascript
+     function highlightMatch(text, query) {
+       const regex = new RegExp(`(${query})`, 'gi');
+       return text.replace(regex, '<strong>$1</strong>');
+     }
+     ```
+
+2. **键盘导航**  
+   - 支持上下箭头键选择建议项，回车键确认：
+     ```javascript
+     let selectedIndex = -1;
+
+     searchInput.addEventListener('keydown', (event) => {
+       const items = suggestionsList.querySelectorAll('li');
+       if (event.key === 'ArrowDown') {
+         selectedIndex = Math.min(selectedIndex + 1, items.length - 1);
+       } else if (event.key === 'ArrowUp') {
+         selectedIndex = Math.max(selectedIndex - 1, -1);
+       } else if (event.key === 'Enter' && selectedIndex >= 0) {
+         searchInput.value = items[selectedIndex].textContent;
+         suggestionsList.style.display = 'none';
+         selectedIndex = -1;
+         return;
+       }
+       items.forEach((item, index) => {
+         item.classList.toggle('active', index === selectedIndex);
+       });
+     });
+     ```
+
+3. **缓存结果**  
+   - 使用缓存（如 `Map`）存储已查询的结果，减少重复请求。
+
+4. **错误处理**  
+   - 处理网络请求失败的情况，显示友好提示。
+
+---
+
+### **使用现成库**
+- **React**: 使用 `react-autocomplete` 或 `downshift`。
+- **Vue**: 使用 `vue-autosuggest`。
+- **通用库**: `awesomplete` 或 `typeahead.js`。
+
+---
+
+通过以上方法，可以高效实现一个实时自动补全搜索框，提升用户体验。
+
+## 12、常见的登录鉴权方式有哪些？各自的优缺点是？
+
+常见的登录鉴权方式主要包括以下几种，每种方式都有其优缺点和适用场景：
+
+---
+
+### **1. Session-Cookie 鉴权**
+#### **实现原理**
+- 用户登录后，服务器生成一个 Session 并存储在服务器端（如内存、数据库）。
+- 服务器返回一个 Session ID 给客户端，客户端通过 Cookie 存储该 Session ID。
+- 后续请求时，客户端自动携带 Cookie，服务器通过 Session ID 验证用户身份。
+
+#### **优点**
+- 简单易用，适合传统 Web 应用。
+- 服务器完全控制 Session 的生命周期。
+
+#### **缺点**
+- **扩展性差**：Session 存储在服务器端，分布式环境下需要额外处理（如 Redis 共享 Session）。
+- **安全性依赖 Cookie**：容易受到 CSRF（跨站请求伪造）攻击。
+- **不适合移动端**：移动端对 Cookie 的支持较弱。
+
+#### **适用场景**
+- 传统的 Web 应用（如电商网站、管理系统）。
+
+---
+
+### **2. Token 鉴权（如 JWT）**
+#### **实现原理**
+- 用户登录后，服务器生成一个 Token（如 JWT）并返回给客户端。
+- 客户端将 Token 存储在本地（如 LocalStorage 或 Cookie）。
+- 后续请求时，客户端在请求头（如 `Authorization`）中携带 Token，服务器验证 Token 的有效性。
+
+#### **优点**
+- **无状态**：Token 包含所有用户信息，服务器无需存储 Session。
+- **扩展性强**：适合分布式系统和微服务架构。
+- **跨域支持**：适合前后端分离的应用。
+
+#### **缺点**
+- **Token 泄露风险**：如果 Token 被窃取，攻击者可以冒充用户。
+- **无法主动失效**：Token 在有效期内一直可用，除非服务器额外实现黑名单机制。
+- **性能开销**：每次请求都需要解析和验证 Token。
+
+#### **适用场景**
+- 前后端分离的应用（如 SPA、移动端 App）。
+- 分布式系统和微服务架构。
+
+---
+
+### **3. OAuth 2.0**
+#### **实现原理**
+- 用户通过第三方平台（如 Google、GitHub）登录。
+- 第三方平台返回一个授权码（Authorization Code），客户端用该授权码换取 Access Token。
+- 客户端使用 Access Token 访问受保护的资源。
+
+#### **优点**
+- **安全性高**：用户无需向客户端提供密码。
+- **适合第三方登录**：简化用户注册和登录流程。
+- **标准化**：OAuth 2.0 是行业标准，支持多种场景（如授权码模式、隐式模式）。
+
+#### **缺点**
+- **实现复杂**：需要理解 OAuth 2.0 的多种流程和模式。
+- **依赖第三方平台**：如果第三方平台不可用，用户无法登录。
+
+#### **适用场景**
+- 需要第三方登录的应用（如社交平台、内容分享网站）。
+- 需要授权访问第三方资源的应用（如 Google API、GitHub API）。
+
+---
+
+### **4. SSO（单点登录）**
+#### **实现原理**
+- 用户在一个系统中登录后，可以在多个关联系统中无需再次登录。
+- 通常基于中央认证服务器（如 CAS）实现。
+
+#### **优点**
+- **用户体验好**：用户只需登录一次即可访问多个系统。
+- **集中管理**：方便统一管理用户权限和认证。
+
+#### **缺点**
+- **实现复杂**：需要搭建和维护中央认证服务器。
+- **单点故障**：如果认证服务器宕机，所有系统都无法登录。
+
+#### **适用场景**
+- 企业内部系统（如 OA、ERP）。
+- 多个关联系统共享用户资源的场景。
+
+---
+
+### **5. API Key 鉴权**
+#### **实现原理**
+- 客户端在请求时携带一个固定的 API Key，服务器验证该 Key 的有效性。
+
+#### **优点**
+- **简单易用**：适合机器对机器的认证（如 API 调用）。
+- **无状态**：服务器无需存储额外信息。
+
+#### **缺点**
+- **安全性低**：API Key 容易被窃取，且无法区分用户。
+- **不适合用户鉴权**：通常用于服务端之间的认证。
+
+#### **适用场景**
+- 开放 API 的认证（如地图 API、天气 API）。
+
+---
+
+### **6. 双因素认证（2FA）**
+#### **实现原理**
+- 用户在登录时需要提供两种不同的认证方式（如密码 + 短信验证码）。
+
+#### **优点**
+- **安全性高**：即使密码泄露，攻击者也无法登录。
+- **防止暴力破解**：增加额外的认证步骤。
+
+#### **缺点**
+- **用户体验差**：登录流程复杂，用户需要额外操作。
+- **依赖外部服务**：如短信服务、邮件服务。
+
+#### **适用场景**
+- 对安全性要求高的系统（如银行、支付系统）。
+
+---
+
+### **总结对比**
+
+| 鉴权方式       | 优点                                   | 缺点                                   | 适用场景                         |
+|----------------|----------------------------------------|----------------------------------------|----------------------------------|
+| Session-Cookie | 简单易用，适合传统 Web 应用            | 扩展性差，安全性依赖 Cookie            | 传统 Web 应用                    |
+| Token（JWT）   | 无状态，扩展性强，适合分布式系统       | Token 泄露风险，无法主动失效           | 前后端分离应用，分布式系统       |
+| OAuth 2.0      | 安全性高，适合第三方登录               | 实现复杂，依赖第三方平台               | 第三方登录，授权访问资源         |
+| SSO            | 用户体验好，集中管理                   | 实现复杂，单点故障                     | 企业内部系统                     |
+| API Key        | 简单易用，适合机器对机器认证           | 安全性低，不适合用户鉴权               | 开放 API 认证                    |
+| 双因素认证     | 安全性高，防止暴力破解                 | 用户体验差，依赖外部服务               | 高安全性系统                     |
+
+---
+
+根据具体需求选择合适的鉴权方式，可以平衡安全性、用户体验和开发复杂度。

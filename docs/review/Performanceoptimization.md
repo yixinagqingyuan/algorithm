@@ -2,7 +2,7 @@
 
 # 性能优化热门考题
 
-# 1、说一下前端性能优化
+## 1、说一下前端性能优化
 
 前端性能优化是提升网页加载速度、用户体验和响应速度的过程。良好的前端性能优化能够减少页面加载时间，降低带宽使用，改善用户体验，特别是在移动设备和低网络速度环境下。以下是一些常见的前端性能优化方法，涵盖了从资源加载、渲染、脚本执行等多个方面。
 
@@ -79,3 +79,137 @@
 ### 总结
 
 前端性能优化是一个持续的过程，从资源加载、渲染、脚本执行、图片优化等方面入手，通过合理的技术手段提升网页的加载速度和响应速度，最终提供更好的用户体验。
+
+
+## 2、如何在前端页面无限滚动加载内容时自动回收上面的内容？
+
+
+在前端实现无限滚动时自动回收旧内容，可通过 **虚拟滚动（Virtual Scrolling）** 技术动态管理 DOM，只渲染可视区域内容。以下是实现步骤和代码示例：
+
+---
+
+### **核心思路**
+1. **监听滚动事件**，计算当前可视区域的起始/结束索引。
+2. **动态渲染**：仅保留可视区域及缓冲区的元素，移除其他 DOM。
+3. **占位元素**：保持总高度，维持滚动条位置稳定。
+
+---
+
+### **原生 JavaScript 实现示例**
+
+```html
+<div id="scrollContainer" style="height: 500px; overflow-y: auto;">
+  <div id="contentPlaceholder" style="height: 0;"></div>
+  <div id="visibleContent"></div>
+</div>
+```
+
+```javascript
+const DATA = Array.from({ length: 1000 }, (_, i) => `Item ${i + 1}`); // 模拟数据
+const ITEM_HEIGHT = 50; // 假设每个项目高度固定为50px
+const BUFFER = 5; // 缓冲区额外渲染的项目数
+
+const container = document.getElementById('scrollContainer');
+const placeholder = document.getElementById('contentPlaceholder');
+const visibleContent = document.getElementById('visibleContent');
+
+let startIdx = 0;
+let endIdx = 0;
+
+// 初始化占位高度
+placeholder.style.height = `${DATA.length * ITEM_HEIGHT}px`;
+
+function updateVisibleItems() {
+  const scrollTop = container.scrollTop;
+  const visibleCount = Math.ceil(container.clientHeight / ITEM_HEIGHT);
+  
+  // 计算起止索引（含缓冲区）
+  startIdx = Math.max(0, Math.floor(scrollTop / ITEM_HEIGHT) - BUFFER);
+  endIdx = Math.min(DATA.length, startIdx + visibleCount + BUFFER * 2);
+
+  // 创建新片段
+  const fragment = document.createDocumentFragment();
+  for (let i = startIdx; i < endIdx; i++) {
+    const item = document.createElement('div');
+    item.textContent = DATA[i];
+    item.style.height = `${ITEM_HEIGHT}px`;
+    item.dataset.index = i; // 标记索引
+    fragment.appendChild(item);
+  }
+
+  // 清空并替换内容
+  visibleContent.innerHTML = '';
+  visibleContent.appendChild(fragment);
+
+  // 调整内容位置
+  visibleContent.style.transform = `translateY(${startIdx * ITEM_HEIGHT}px)`;
+}
+
+// 滚动事件节流处理
+let isThrottled = false;
+container.addEventListener('scroll', () => {
+  if (!isThrottled) {
+    requestAnimationFrame(() => {
+      updateVisibleItems();
+      isThrottled = false;
+    });
+    isThrottled = true;
+  }
+});
+
+// 初始渲染
+updateVisibleItems();
+```
+
+---
+
+### **关键优化点**
+1. **动态索引计算**  
+   - 根据 `scrollTop` 和容器高度计算当前应渲染的数据范围。
+   - 添加缓冲区（`BUFFER`）避免滚动时出现空白。
+
+2. **文档片段（DocumentFragment）**  
+   - 批量操作 DOM 减少重排次数。
+
+3. **CSS Transform 定位**  
+   - 使用 `translateY` 移动内容区域，而非修改每个元素的位置。
+
+4. **滚动节流**  
+   - 使用 `requestAnimationFrame` 控制更新频率。
+
+---
+
+### **处理动态高度内容**
+若项目高度不固定，需先测量并缓存高度：
+
+```javascript
+const measuredHeights = {};
+
+// 在初次渲染后记录高度
+function measureHeights() {
+  const items = visibleContent.children;
+  for (let item of items) {
+    const index = item.dataset.index;
+    if (!measuredHeights[index]) {
+      measuredHeights[index] = item.getBoundingClientRect().height;
+    }
+  }
+}
+
+// 更新总占位高度
+function updatePlaceholderHeight() {
+  const totalHeight = DATA.reduce((sum, _, i) => sum + (measuredHeights[i] || ITEM_HEIGHT), 0);
+  placeholder.style.height = `${totalHeight}px`;
+}
+```
+
+---
+
+### **使用现成库简化**
+- **React**: 使用 `react-window` 或 `react-virtualized`。
+- **Vue**: 使用 `vue-virtual-scroller`。
+- **原生优化库**: `Intersection Observer` 监听元素可见性。
+
+---
+
+通过动态计算和渲染，可高效实现无限滚动的内容回收，保持页面流畅性。

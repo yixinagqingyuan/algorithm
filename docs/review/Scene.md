@@ -2700,15 +2700,311 @@ document.addEventListener('click', (event) => {
 
 ### **总结对比**
 
-| 鉴权方式       | 优点                                   | 缺点                                   | 适用场景                         |
-|----------------|----------------------------------------|----------------------------------------|----------------------------------|
-| Session-Cookie | 简单易用，适合传统 Web 应用            | 扩展性差，安全性依赖 Cookie            | 传统 Web 应用                    |
-| Token（JWT）   | 无状态，扩展性强，适合分布式系统       | Token 泄露风险，无法主动失效           | 前后端分离应用，分布式系统       |
-| OAuth 2.0      | 安全性高，适合第三方登录               | 实现复杂，依赖第三方平台               | 第三方登录，授权访问资源         |
-| SSO            | 用户体验好，集中管理                   | 实现复杂，单点故障                     | 企业内部系统                     |
-| API Key        | 简单易用，适合机器对机器认证           | 安全性低，不适合用户鉴权               | 开放 API 认证                    |
-| 双因素认证     | 安全性高，防止暴力破解                 | 用户体验差，依赖外部服务               | 高安全性系统                     |
+| 鉴权方式       | 优点                             | 缺点                         | 适用场景                   |
+| -------------- | -------------------------------- | ---------------------------- | -------------------------- |
+| Session-Cookie | 简单易用，适合传统 Web 应用      | 扩展性差，安全性依赖 Cookie  | 传统 Web 应用              |
+| Token（JWT）   | 无状态，扩展性强，适合分布式系统 | Token 泄露风险，无法主动失效 | 前后端分离应用，分布式系统 |
+| OAuth 2.0      | 安全性高，适合第三方登录         | 实现复杂，依赖第三方平台     | 第三方登录，授权访问资源   |
+| SSO            | 用户体验好，集中管理             | 实现复杂，单点故障           | 企业内部系统               |
+| API Key        | 简单易用，适合机器对机器认证     | 安全性低，不适合用户鉴权     | 开放 API 认证              |
+| 双因素认证     | 安全性高，防止暴力破解           | 用户体验差，依赖外部服务     | 高安全性系统               |
 
 ---
 
 根据具体需求选择合适的鉴权方式，可以平衡安全性、用户体验和开发复杂度。
+
+## 13、同一前端页面的 3 个组件请求同一个 API 并发送了 3 次请求，如何优化？
+
+在同一前端页面中，如果多个组件请求同一个 API 并发送了多次请求，会导致不必要的网络开销和性能浪费。以下是优化这种场景的几种方法：
+
+---
+
+### **1. 数据共享**
+#### **策略**：
+- 将 API 请求的结果存储在全局状态或父组件中，供多个子组件共享。
+
+#### **实现**：
+- **使用 React Context**：
+  ```javascript
+  // 创建 Context
+  const ApiDataContext = React.createContext();
+
+  // 父组件
+  const ParentComponent = () => {
+    const [data, setData] = React.useState(null);
+
+    React.useEffect(() => {
+      fetch('/api/data')
+        .then((response) => response.json())
+        .then((data) => setData(data));
+    }, []);
+
+    return (
+      <ApiDataContext.Provider value={data}>
+        <ChildComponentA />
+        <ChildComponentB />
+        <ChildComponentC />
+      </ApiDataContext.Provider>
+    );
+  };
+
+  // 子组件
+  const ChildComponentA = () => {
+    const data = React.useContext(ApiDataContext);
+    return <div>{data ? data.message : 'Loading...'}</div>;
+  };
+  ```
+
+- **使用 Redux 或 Zustand 等状态管理库**：
+  ```javascript
+  // Redux 示例
+  const fetchData = () => async (dispatch) => {
+    const response = await fetch('/api/data');
+    const data = await response.json();
+    dispatch({ type: 'SET_DATA', payload: data });
+  };
+
+  const ParentComponent = () => {
+    const dispatch = useDispatch();
+    const data = useSelector((state) => state.data);
+
+    React.useEffect(() => {
+      dispatch(fetchData());
+    }, [dispatch]);
+
+    return (
+      <>
+        <ChildComponentA data={data} />
+        <ChildComponentB data={data} />
+        <ChildComponentC data={data} />
+      </>
+    );
+  };
+  ```
+
+---
+
+### **2. 请求合并**
+#### **策略**：
+- 在父组件中统一发起请求，然后将数据分发给子组件。
+
+#### **实现**：
+- **父组件发起请求**：
+  ```javascript
+  const ParentComponent = () => {
+    const [data, setData] = React.useState(null);
+
+    React.useEffect(() => {
+      fetch('/api/data')
+        .then((response) => response.json())
+        .then((data) => setData(data));
+    }, []);
+
+    return (
+      <>
+        <ChildComponentA data={data} />
+        <ChildComponentB data={data} />
+        <ChildComponentC data={data} />
+      </>
+    );
+  };
+  ```
+
+---
+
+### **3. 请求缓存**
+#### **策略**：
+- 使用缓存机制（如内存缓存、LocalStorage 或 SessionStorage）存储 API 响应，避免重复请求。
+
+#### **实现**：
+- **内存缓存**：
+  ```javascript
+  let cachedData = null;
+
+  const fetchData = async () => {
+    if (cachedData) {
+      return cachedData;
+    }
+    const response = await fetch('/api/data');
+    cachedData = await response.json();
+    return cachedData;
+  };
+
+  const ParentComponent = () => {
+    const [data, setData] = React.useState(null);
+
+    React.useEffect(() => {
+      fetchData().then((data) => setData(data));
+    }, []);
+
+    return (
+      <>
+        <ChildComponentA data={data} />
+        <ChildComponentB data={data} />
+        <ChildComponentC data={data} />
+      </>
+    );
+  };
+  ```
+
+- **LocalStorage 缓存**：
+  ```javascript
+  const fetchData = async () => {
+    const cachedData = localStorage.getItem('apiData');
+    if (cachedData) {
+      return JSON.parse(cachedData);
+    }
+    const response = await fetch('/api/data');
+    const data = await response.json();
+    localStorage.setItem('apiData', JSON.stringify(data));
+    return data;
+  };
+  ```
+
+---
+
+### **4. 防抖与节流**
+#### **策略**：
+- 如果多个组件可能同时触发请求，可以使用防抖（Debounce）或节流（Throttle）来减少请求次数。
+
+#### **实现**：
+- **防抖**：
+  ```javascript
+  const debounce = (func, delay) => {
+    let timer;
+    return (...args) => {
+      clearTimeout(timer);
+      timer = setTimeout(() => func.apply(this, args), delay);
+    };
+  };
+
+  const fetchData = debounce(() => {
+    fetch('/api/data')
+      .then((response) => response.json())
+      .then((data) => console.log(data));
+  }, 300);
+  ```
+
+- **节流**：
+  ```javascript
+  const throttle = (func, delay) => {
+    let lastCall = 0;
+    return (...args) => {
+      const now = new Date().getTime();
+      if (now - lastCall < delay) return;
+      lastCall = now;
+      return func.apply(this, args);
+    };
+  };
+
+  const fetchData = throttle(() => {
+    fetch('/api/data')
+      .then((response) => response.json())
+      .then((data) => console.log(data));
+  }, 300);
+  ```
+
+---
+
+### **5. 使用 SWR 或 React Query**
+#### **策略**：
+- 使用数据请求库（如 SWR 或 React Query）自动处理缓存、重复请求和数据共享。
+
+#### **实现**：
+- **SWR**：
+  ```javascript
+  import useSWR from 'swr';
+
+  const fetcher = (url) => fetch(url).then((res) => res.json());
+
+  const ChildComponentA = () => {
+    const { data, error } = useSWR('/api/data', fetcher);
+    if (error) return <div>Error</div>;
+    if (!data) return <div>Loading...</div>;
+    return <div>{data.message}</div>;
+  };
+
+  const ChildComponentB = () => {
+    const { data, error } = useSWR('/api/data', fetcher);
+    if (error) return <div>Error</div>;
+    if (!data) return <div>Loading...</div>;
+    return <div>{data.message}</div>;
+  };
+  ```
+
+- **React Query**：
+  ```javascript
+  import { useQuery } from 'react-query';
+
+  const fetchData = () => fetch('/api/data').then((res) => res.json());
+
+  const ChildComponentA = () => {
+    const { data, isLoading, error } = useQuery('apiData', fetchData);
+    if (isLoading) return <div>Loading...</div>;
+    if (error) return <div>Error</div>;
+    return <div>{data.message}</div>;
+  };
+  ```
+
+---
+
+### **总结**
+优化同一页面中多个组件请求同一个 API 的场景，可以采用以下方法：
+1. **数据共享**：通过 React Context 或状态管理库（如 Redux）共享数据。
+2. **请求合并**：在父组件中统一发起请求，分发给子组件。
+3. **请求缓存**：使用内存缓存或 LocalStorage 缓存 API 响应。
+4. **防抖与节流**：减少同时触发的请求次数。
+5. **使用数据请求库**：如 SWR 或 React Query，自动处理缓存和重复请求。
+
+根据项目需求选择合适的优化方案，提升性能和用户体验。
+
+## 14、如何在页面内一次性渲染 10 万条数据，并保证页面不卡顿？
+
+
+在网页端高效渲染10万条数据需采用分阶段渲染和DOM操作优化策略，具体可通过以下技术方案实现：
+
+### **一、虚拟列表技术（核心方案）**
+1. **视窗动态加载机制**  
+   仅渲染可视区域内的数据条目（约20-50行），通过滚动事件监听动态加载后续数据。采用`Intersection Observer API`精确计算可视区域，配合`vue-virtual-scroller`或`react-window`等成熟库实现高效渲染。
+
+2. **DOM节点复用**  
+   对已滚动出视窗的DOM节点进行回收复用，避免重复创建销毁带来的性能损耗。典型实现需维护固定数量的渲染节点池，根据滚动位置动态更新节点内容。
+
+### **二、时间分片渲染技术**
+1. **任务拆分与调度**  
+   将数据分割为每批次50-200条的小任务单元，通过`requestAnimationFrame`或`requestIdleCallback`调度渲染任务。示例代码片段：
+   ```javascript
+   const batchSize = 100;
+   let index = 0;
+   function renderChunk() {
+       if (index >= data.length) return;
+       const fragment = document.createDocumentFragment();
+       for (let i = 0; i < batchSize && index < data.length; i++) {
+           const item = document.createElement('div');
+           item.textContent = data[index++];
+           fragment.appendChild(item);
+       }
+       container.appendChild(fragment);
+       requestAnimationFrame(renderChunk);
+   }
+   requestAnimationFrame(renderChunk);
+   ```
+
+2. **文档片段优化**  
+   使用`document.createDocumentFragment()`创建虚拟节点容器，批量完成DOM操作后一次性插入真实DOM，将10万次回流缩减至约100次（每批次触发一次回流）。
+
+### **三、数据预处理与渲染策略**
+1. **数据扁平化压缩**  
+   对原始数据进行压缩处理（如去除冗余字段、转换数据结构），降低内存占用与解析耗时。推荐使用`TypedArray`处理数值型数据。
+
+2. **Web Worker后台计算**  
+   将数据排序、过滤等计算密集型任务迁移至Web Worker线程，避免阻塞主线程渲染流程。通过`postMessage`实现主线程与Worker间的数据通信。
+
+### **四、渲染性能监测**
+1. **性能指标采集**  
+   使用`Performance API`监控首次内容渲染时间（FCP）、最大内容绘制时间（LCP）等核心指标，通过`console.time`记录关键阶段耗时。
+
+2. **内存泄漏排查**  
+   在Chrome DevTools的Memory面板执行堆快照对比，及时释放无引用DOM节点及数据缓存。推荐采用WeakMap管理临时数据引用。
+
+> **方案选择建议**：对于表格类需完整展示的数据，优先采用虚拟列表；对于图表类需要全部渲染的场景，选择时间分片+文档片段组合方案。实际实施中需通过`debounce`函数优化滚动事件触发频率，并设置加载状态指示器提升用户体验。

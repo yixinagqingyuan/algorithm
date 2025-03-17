@@ -820,6 +820,7 @@ function ChineseToNumber(chnStr) {
 function reverseStr(str) {
   console.log(str.trim().replace(/\s+/g, ' ').split(' ').reverse().join(' '))
 }
+
 // reverseStr('the sky is blue')
 
 // 删除字符串中的所有相邻重复项

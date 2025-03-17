@@ -131,3 +131,35 @@ const minDistance1 = (word1, word2) => {
   return dp[m][n] // 最终答案位于dp数组右下角
 }
 minDistance1('horse', 'ros')
+
+// 现在可以写第三遍了
+const minDistance2 = (word1, word2) => {
+  // 长度确定了之后，我们就要确定 dp 数组的内容了，也就是我们的状态
+  const m = word1.length
+  const n = word2.length
+  // 初始化 dp 数组，整理 dp 指定是个二维数组全部搞成 0
+  const dp = new Array(m - 1).fill(0).map(() => new Array(n - 1).fill(0))
+  // 然后就处理边界条件，给之前的填满
+  for (let i = 0; i <= m; i++) {
+    dp[i][0] = i
+  }
+  for (let j = 0; j <= n; j++) {
+    dp[0][j] = j
+  }
+  // 然后就开始遍历，双重 for循环
+  for (let i = 0; i <= m; i++) {
+    for (let j = 0; j <= n; j++) {
+      // 这里就是开始比较了 如果两个单词相同是就加大dp 的步骤了
+      if (word1[i - 1] === word2[j - 1]) {
+        dp[i][j] = dp[i - 1][j - 1]
+      } else {
+        // 否这就取一个当下最小的
+        dp[i][j] = Math.min(
+          dp[i - 1][j - 1] + 1,
+          dp[i][j - 1] + 1,
+          dp[i - 1][j] + 1,
+        )
+      }
+    }
+  }
+}

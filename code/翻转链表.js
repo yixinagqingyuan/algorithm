@@ -49,3 +49,22 @@ const reverselist2 = (head) => {
     curr = next
   }
 }
+
+// 重写第三次
+
+const reverselist3 = (head) => {
+  // 这是之前的思路，然后给当前的这个线干掉，然后重新搞一个新的线
+  // 所以得有这一个当前，和 当前这个
+  let prev = null
+  let curr = head
+  // 然后双重 for 循环啊
+  while (curr) {
+    // 先给下一个存起来
+    const next = curr.next
+    // 然后给当前的这个的 next 指向 prev，这样老的建就断了，新的就建立了
+    curr.next = prev
+    // 然后移动到下一个，上一个也搞定，下一个也搞定
+    prev = curr
+    curr = next
+  }
+}

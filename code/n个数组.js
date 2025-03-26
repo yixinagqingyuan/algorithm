@@ -19,10 +19,11 @@ function getCombinations(arrays) {
   const firstArray = arrays[0]
   // 递归获取其余数组的组合
   const restCombinations = getCombinations(arrays.slice(1))
-
   // 将第一个数组的每个元素与其余数组的组合进行组合
   for (const item of firstArray) {
     for (const combination of restCombinations) {
+      // 其实是拿到前文的所有组合，然后在第一个数组的每个元素后面添加，也就是说
+      // 最后一层会随着 递归的进行，不断的添加，最后一层的递归，会把所有的情况都遍历到
       result.push([item, ...combination])
     }
   }

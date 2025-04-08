@@ -1,57 +1,35 @@
 /** @format */
-
 // 找出字符串中连续重复次数最多的字符，输出该字符，开始位置，结束位置
-const findMostRepeatedChar = (str) => {
-  if (!str || str.length === 0) {
-    return { char: '', start: -1, end: -1 };
-  }
-
-  let maxChar = str[0];
-  let maxStart = 0;
-  let maxEnd = 0;
-  let maxLength = 1;
-
-  let currentChar = str[0];
-  let currentStart = 0;
-  let currentLength = 1;
-
-  // 使用双指针遍历字符串
+// 这个题就需要借助一些中间变量，来保存问题，而且这个题就跟之前的找最大无重复的数异曲同工
+// 只是这一次要下标了
+const repeat = (str) => {
+  // 首先创建一些中间变量
+  let maxPosition = [0, 0]
+  let position = [0, 0]
+  let newChar = str[0]
+  // 然后我们开始遍历
   for (let i = 1; i < str.length; i++) {
-    if (str[i] === currentChar) {
-      // 当前字符与前一个字符相同，增加当前长度
-      currentLength++;
-      
-      // 更新最大重复记录
-      if (currentLength > maxLength) {
-        maxLength = currentLength;
-        maxChar = currentChar;
-        maxStart = currentStart;
-        maxEnd = i;
-      }
+    // 首先我们开始找相同字符串
+    const char = str[i]
+    if (char == newChar) {
+      position[1] = i
+      // 然后我们开始找最大的
     } else {
-      // 遇到新字符，重置当前计数
-      currentChar = str[i];
-      currentStart = i;
-      currentLength = 1;
+      newChar = char
+      position[0] = i
+      position[1] = i
     }
+    // 这里就是求出最大下标
+    // 这里的本质其实就是那当前的等于的下边和不等于的去比较看哪个大取哪个
+    // 这里注意要身拷贝，防止对象引用最后改共同的值导致出错
+    console.log(position[1] - position[0], maxPosition[1] - maxPosition[0])
+    maxPosition =
+      position[1] - position[0] > maxPosition[1] - maxPosition[0]
+        ? JSON.parse(JSON.stringify(position))
+        : JSON.parse(JSON.stringify(maxPosition))
   }
+  // 最后得出最终结果
+  console.log(maxPosition)
+}
 
-  return {
-    char: maxChar,
-    start: maxStart,
-    end: maxEnd
-  };
-};
-
-// 测试用例
-const test1 = findMostRepeatedChar('bsssssssbssseeee');
-console.log('测试用例1:', test1);
-
-const test2 = findMostRepeatedChar('aabbbcccc');
-console.log('测试用例2:', test2);
-
-const test3 = findMostRepeatedChar('a');
-console.log('测试用例3:', test3);
-
-const test4 = findMostRepeatedChar('');
-console.log('测试用例4:', test4);
+repeat('bsssssssbssseeee')

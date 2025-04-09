@@ -18,10 +18,14 @@ function removeString(str) {
   return stack.join('')
 }
 
-// // 测试用例
-// console.log(removeString('aabbc')) // 输出: ''
-// console.log(removeString('aaabbbccc')) // 输出: 'd'
-// console.log(removeString('abcdcba')) // 输出: 'a'
+// 测试用例
+console.log(removeString('aabbc')) // 输出: ''
+console.log(removeString('aaabbbccc')) // 输出: ''
+console.log(removeString('abcdcba')) // 输出: 'dc'
+console.log(removeString('')) // 输出: ''
+console.log(removeString('bbb')) // 输出: ''
+console.log(removeString('acac')) // 输出: ''
+console.log(removeString('aacbcc')) // 输出: ''
 
 // 重写一遍
 // 这个主要思路就是干掉b，然后发现，是 c 然后如果在发现是 a  那就干掉
@@ -32,7 +36,7 @@ function removeString1(str) {
     // 按照那个思路，干掉 b
     if (str[i] === 'b') continue
     // 然后如果发现是 c ，然后在发现如果前头是啊，那就给栈顶的家伙事干掉
-    if (str[i === 'c' && stack.length > 0 && stack[stack.length - 1] === 'a']) {
+    if (str[i] === 'c' && stack.length > 0 && stack[stack.length - 1] === 'a') {
       // 这时候就干掉，顺带 c 就不push 进栈了
       stack.pop()
     } else {

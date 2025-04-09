@@ -163,3 +163,37 @@ const minDistance2 = (word1, word2) => {
     }
   }
 }
+
+// 再写第四遍
+const minDistance3 = (word1, word2) => {
+  // 我们一看到这题就要用动态规划做，那么就是五部曲
+  // 首先最大的 length
+  const m = word1.length
+  const n = word2.length
+  // 我先得有个数组啊
+
+  const dp = new Array(m + 1).fill(0).map(() => new Array(n + 1).fill(0))
+  // 然后我们要确定边界状态
+  for (let i = 0; i <= m; i++) {
+    dp[i][0] = i
+  }
+  for (let j = 0; j <= n; j++) {
+    dp[0][j] = j
+  }
+  // 然后开始遍历，主要就是为了解决动态规划在每一个情况下的最小步骤
+  for (let i = 1; i <= m; i++) {
+    for (let j = 1; j <= n; j++) {
+      if (word1[i - 1] === word2[j - 1]) {
+        // 如果相等的话，那么就不需要解决了，直接等于上一个最小步骤就行了
+        dp[i][j] = dp[i - 1][j - 1]
+      } else {
+        // 不想等的话就要找一个最小值了
+        dp[i][j] = Math.min(
+          dp[i - 1][j - 1] + 1,
+          dp[i][j - 1] + 1,
+          dp[i - 1][j] + 1,
+        )
+      }
+    }
+  }
+}

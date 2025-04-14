@@ -68,3 +68,17 @@ const reverselist3 = (head) => {
     curr = next
   }
 }
+
+// 重写第四次
+const reverselist4 = (head) => {
+  // 记住一个思路，碰见当前，给下一个的 next 存起来，然后给当前的指向上一个
+  let prev = null
+  let curr = head
+  while (curr) {
+    const next = curr.next
+    curr.next = prev
+    prev = curr
+    curr = next
+  }
+  return prev
+}

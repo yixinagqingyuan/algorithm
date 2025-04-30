@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+
+<body>
+  <style>
+    .editable-div {
+      min-height: 100px;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      margin: 20px;
+      outline: none;
+    }
+
+    .editable-div:focus {
+      border-color: #4a90e2;
+      box-shadow: 0 0 5px rgba(74, 144, 226, 0.3);
+    }
+
+    .editable-div:empty:before {
+      content: '请输入内容...';
+      color: #999;
+    }
+
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      margin-bottom: 1em;
+    }
+
+    td, th {
+      border: 1px solid #ddd;
+      padding: 8px;
+      min-width: 100px;
+      position: relative;
+    }
+
+    th {
+      background-color: #f5f5f5;
+      font-weight: bold;
+      text-align: left;
+    }
+
+    td:focus, th:focus {
+      outline: 2px solid #4a90e2;
+      background-color: #f8f9fa;
+    }
+
+    tr:hover {
+      background-color: #f5f5f5;
+    }
+  </style>
+  <div class="editable-div" contenteditable="true">
+    <table>
+      <thead>
+        <tr>
+          <th contenteditable="true">标题1</th>
+          <th contenteditable="true">标题2</th>
+          <th contenteditable="true">标题3</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td contenteditable="true">单元格1</td>
+          <td contenteditable="true">单元格2</td>
+          <td contenteditable="true">单元格3</td>
+        </tr>
+        <tr>
+          <td contenteditable="true">单元格4</td>
+          <td contenteditable="true">单元格5</td>
+          <td contenteditable="true">单元格6</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <script>
+    document.addEventListener("selectionchange", () => {
+      console.log(document.getSelection());
+    });
+    document.onselectionchange = () => {
+      console.log(document.getSelection());
+    };
+  </script>
+</body>
+
+</html>

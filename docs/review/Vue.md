@@ -535,6 +535,8 @@ state.name = 'Vue 3' // 响应式更新
 state.newProperty = 'New' // 响应式添加新属性
 ```
 
+vue2中其实Object.defineProperty 其实也能监听数组， 只是如果新增就不行，所以push、pop、shift、unshift、splice、sort、reverse。 需要重写，来做依赖搜集
+
 ---
 
 ### 3. **Composition API**

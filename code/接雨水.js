@@ -74,6 +74,7 @@ const trap1 = (height) => {
   for (let i = 0; i < n; i++) {
     // 取当前左右的最小值
     // 如果当前这个最高，并且最大最小值是自己呢？
+    // 这个代表能承受的水是多少呢？
     // 那当前值也是 自己，减去之后那么就是 0，所以动态规划很棒
     totalWater += Math.min(left[i], right[i]) - height[i]
   }

@@ -302,3 +302,40 @@ app.get('/api/data', (req, res) => {
 
 ### 总结：
 使用 AI 工具来提升开发效率的关键在于 **自动化** 和 **智能化**。通过自动生成代码、智能审查、自动化测试等功能，AI 可以帮助开发者节省时间、减少错误、提高代码质量、优化项目管理，最终加快开发进程。
+
+
+## 3、ESModule 和 CommonJS 的区别
+
+
+## 1. 语法差异
+- **ESModule**：使用 `import` 和 `export` 关键字
+- **CommonJS**：使用 `require` 和 `module.exports`
+
+## 2. 加载时机
+- **ESModule**：静态加载，编译时确定依赖关系
+- **CommonJS**：动态加载，运行时加载
+
+## 3. 导入导出差异
+- **ESModule**：支持命名导出和默认导出
+- **CommonJS**：导出单个对象
+
+## 4. 值类型
+- **ESModule**：输出值的引用
+- **CommonJS**：输出值的拷贝
+
+## 5. 代码示例
+```javascript
+// ESModule
+export const name = 'es'
+export default function() {}
+import { name } from './module'
+import defaultFn from './module'
+
+// CommonJS
+module.exports = { name: 'cjs' }
+const module = require('./module')
+```
+
+## 6. 主要特点
+- **ESModule** 是 JavaScript 官方标准，更适合静态分析和 tree-shaking
+- **CommonJS** 主要用于 Node.js，更适合动态加载场景

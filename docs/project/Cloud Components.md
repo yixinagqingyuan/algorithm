@@ -19,7 +19,7 @@
 ### 实现在线代码编辑器（ide）
 
 1、CodeSandbox（纯浏览器编译）
-2、StackBlitz （web container）
+2、StackBlitz （web container 这是一个完全新颖的基于 WebAssembly 的操作系统，它使Node.js能够完全在浏览器内部运行）
 
 ### 最后选了 CodeSandbox 技术思路
 

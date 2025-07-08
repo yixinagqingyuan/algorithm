@@ -95,3 +95,24 @@ function maxArea1(height) {
     }
   }
 }
+
+// 重写这个成水最多的容器
+
+const maxArea2 = (height) => {
+  // 双指针法门
+  let left = 0
+  let right = height.length - 1
+  let max = 0
+  while (left < right) {
+    // 先求面积
+    const num = (right - left) * (left > right ? right : left)
+    max = Math.max(max, num)
+    // 然后开始移动指针
+    if (left > right) {
+      // 这个原则是什么呢？ 很多见，移动短的指针
+      right--
+    } else {
+      left++
+    }
+  }
+}

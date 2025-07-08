@@ -98,3 +98,30 @@ testCases.forEach((test, index) => {
   console.log('结果:', findMostRepeatedChar1(test))
   console.log('---')
 })
+
+// 重写一次试试
+const findMostRepeatedChar2 = (str) => {
+  // 因为要找出连续出现的字符，所以，我们要设定开始位置，长度，还有，结束位置
+  const start = 0
+  const end = 0
+  const length = 1
+  const currStart = 0
+  const currEnd = 0
+  const currLength = 1
+  for (let i = 1; i < str.length; i++) {
+    if (str[i - 1] == str[i]) {
+      currEnd++
+      currLength++
+    } else {
+      currStart = i
+      currEnd = i
+      currLength = 1
+    }
+    if (currLength > length) {
+      start = currStart
+      end = currEnd
+      length = currLength
+    }
+  }
+}
+findMostRepeatedChar2('aabbbcccc')

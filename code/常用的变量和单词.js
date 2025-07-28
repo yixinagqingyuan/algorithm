@@ -13,3 +13,4 @@ let emit // vue吐出来
 let split // 转换数组
 let join // 转换字符串
 let repleac // 替换
+let padStart // 头部补全

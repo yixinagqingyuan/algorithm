@@ -3,8 +3,6 @@
 template、 foreach、  pop 尾部删除删除  push 插入一个   unshift 头部插入一个  shift 删除一个头部 
 
 
-
-
 # 真题 一Vue 组件设计的窍门
 
 设计优秀的 Vue 组件需要考虑多个方面，以下是一些关键的窍门和最佳实践：
@@ -357,4 +355,33 @@ export default {
 
 Vue 3 是 Vue.js 的未来方向，提供了更好的性能、更强的功能和更好的开发体验。对于新项目，强烈建议使用 Vue 3。
         
-# 
+# babel
+
+### Babel 原理的几个阶段
+- **配置解析阶段**
+  - 读取并合并配置（`babel.config.*`、`.babelrc*`、`package.json#babel`、`env` 条件等）
+  - 解析目标环境（`targets`/`browserslist`），展开 `presets` 与 `plugins` 的执行序列
+
+- **解析（Parse）**
+  - 词法分析：把源码切成 token
+  - 语法分析：根据语法插件（如 TypeScript、JSX、装饰器等）将 token 构建成 AST（Babel AST/ESTree 变体）
+  - 附带位置信息、注释等元数据，便于后续处理与源码映射
+
+- **转换（Transform）**
+  - 遍历 AST（visitor 模式），按插件顺序对节点做增删改（语法降级、语义改写、提取/合并作用域、插入 helper 等）
+  - `@babel/preset-env` 基于 `targets` 选择需要的语法转换
+  - Polyfill 策略：
+    - `useBuiltIns: "usage"+core-js`：按用量注入 polyfill
+    - 或 `@babel/plugin-transform-runtime`：以 runtime 形式复用 helpers/生成器，减少重复内联
+  - 模块/语法等转换可能多轮进行，直到得到目标 AST
+
+- **生成（Generate）**
+  - 将 AST 输出为目标代码字符串
+  - 生成/合并 Source Map，保持调试可用
+  - 按需保留或插入 `helpers`、`import` 等
+
+简述：Babel 从配置解析出执行计划，先把源码解析为 AST，再由一系列插件对 AST 做变换，最后把变换后的 AST 生成目标代码与 Source Map。
+
+关键词，token 词法分析，语法分析，状态机，ast 转换降级 加入polyfill， 生成目标代码
+
+

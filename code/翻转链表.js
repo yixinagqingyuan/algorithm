@@ -82,3 +82,19 @@ const reverselist4 = (head) => {
   }
   return prev
 }
+
+// 重写一次反转链表
+const reverselist5 = (head) => {
+  // 首先要有个 curr 和 prev 来解决中间值的问题
+  const prev = null
+  const curr = head
+  // 然后开始遍历，
+  while (curr) {
+    // 我们遍历就走到下一个了
+    const next = curr.next
+    curr.next = prev
+    prev = curr
+    curr = next
+  }
+}
+reverselist5()

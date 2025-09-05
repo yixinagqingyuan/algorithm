@@ -37,6 +37,39 @@ const arrays = [
   ['a', 'b'],
   ['x', 'y'],
 ]
+// 这种的就不是递归做，说白了就是全排列
+
+function getCombinations1(arrays) {
+  if (arrays.length == 0) {
+    return []
+  }
+  // 因为有递归，当然得兜底，当只有一个数组的时候，那么我们就要返回，这个数字了
+  if (arrays.length == 0) {
+    // 这是为了什么呢，是为了到时候破开 返回的结果是[[1],[2]]
+    return arrays[0].map((item) => [item])
+  }
+  // 他这一题说的是啥呢？ 是我找出所有数组的排列组合，这种其实跟全排列一样，核心思路就是递归
+  // 首先就是搞个结果啊，为了能存上个结果
+  // const res = []
+  // // 然后我们先取出第一个，因为你要跟后面的比较啊
+  // const frist = arrays[0]
+  // const rest = getCombinations1(arrays.splice(1))
+  // // 然后  for 循环比较
+  // for (let i of frist) {
+  //   for (let j of rest) {
+  //     res.push([i, ...j])
+  //   }
+  // }
+  const res = []
+  const frist = arrays.shift()
+  const rest = getCombinations1(arrays)
+  for (let i of frist) {
+    for (let j of rest) {
+      res.push(i, ...j)
+    }
+  }
+  return res
+}
 
 const result = getCombinations(arrays)
 console.log('所有可能的组合：')
@@ -69,3 +102,34 @@ const permute = (nums) => {
   }
   dfs([])
 }
+
+// 重写全排列
+
+const permute1 = (nums) => {
+  // 全排列首先得有结果 res 其次得有递归，然后还得有个回朔算法
+  const res = []
+  // 都说了用递归，递归的方式不一样啊，跟上一个，不要这么死板啊，兄弟
+  // 上一个题能递归的方式我要去组合而不用回朔，这个要回朔，所以我们的目的是要从结果来倒推遍历
+  const dfs = (arr) => {
+    // 首先当数组满了，我们要 push 进去重新开始.
+    if (arr.length == nums.length) {
+      // 这里要复制数组，不然就有问题
+      res.push(arr.push(arr.slice()))
+      // 完事要 retrun 出去
+      return
+    }
+    for (let n of nums) {
+      if (!arr.includes(n)) {
+        // 我要回朔
+        arr.push(n)
+        // 然后要再往下叠加，直到累加满三个
+        dfs(arr)
+        // 完事之后退出来
+        arr.pop()
+      }
+    }
+  }
+  dfs([])
+}
+
+permute1([1, 2, 3])

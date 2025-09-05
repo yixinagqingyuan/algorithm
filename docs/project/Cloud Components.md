@@ -115,3 +115,6 @@ webpack 的方式好处就是，我们上传服务器和本地通过 postMessage
 ### 为什么要用eval 不用 newfunction
 new function 和 eval  为什么选用eval 因为new function有时候执行的方式不太方便 并且如果在外全局挂了变量，在全局变量执行的时候无法捕获闭包变量，还需要显式传入
 
+
+
+

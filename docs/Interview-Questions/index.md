@@ -481,3 +481,90 @@ Map 和 object 的区别在 Object 中， key 必须是简单数据类型（整�
 栈和堆的区别
 展示先入后出的一种线性数据结构，我们在使用层面上，有时候洗数据可能需要这个东西，在我们底层使用上，原始类型可能就是栈的结构
 堆是一种无序树形数据结构，我们代码里面可能用到的较少，主要是我们一些数据结构的底层可能用到的较多，比如说，堆数据结构，对象就是典型的堆数据结构
+
+
+## 百度真题
+
+vue和 react 的一些区别
+Vue 更偏“声明式模板 + 编译期优化 + 精细响应式”；React 更偏“JSX + 函数式心智 + 显式性能优化”
+
+node 的事件循环机制
+宏观顺序：timers → pending → poll → check → close
+每个阶段后：先清空 nextTick，再清空 Promise 微任务
+I/O 回调后更容易触发 setImmediate 先于 setTimeout(0) 执行
+setImmediate用途
+I/O 回调中“让步”给事件循环，然后尽快继续后续逻辑。
+避免阻塞 poll 阶段，拆分长任务到多个切片。
+
+wangeditor 的一些机制，
+
+
+插件机制应该怎么写
+设计模式
+- 观察者/发布-订阅（Observer/Pub-Sub）
+  - Vue2：`Dep` ←→ `Watcher` 依赖收集与派发更新
+  - Vue3：`effect/track/trigger` 响应式副作用收集与触发
+  - 事件总线、组件自定义事件也属发布-订阅
+
+- 代理（Proxy）
+  - Vue2：`Object.defineProperty` 劫持数据（数据代理）
+  - Vue3：`Proxy` 实现 `reactive`/`readonly`/`shallowReactive` 等
+
+- 组合（Composite）
+  - 组件树与 `VNode` 树（虚拟 DOM）是典型的树形组合结构，统一以相同接口遍历/渲染/diff
+
+- 策略（Strategy）
+  - Diff 策略（同层对比、key 优化、`patchFlag` 分支）
+  - 指令/事件修饰符、平台差异适配（DOM/Native/Weex）按策略分发
+  - 表达式/指令解析不同分支策略
+
+- 工厂（Factory）
+  - `h()`/`createVNode()` 创建不同类型的 VNode
+  - 组件/指令/插件注册创建实例的统一入口
+
+- 装饰器（Decorator）
+  - Vue2 生态：类式组件/属性装饰器（TS 装饰器语法）
+  - 指令/mixin 在运行时对组件能力进行“装饰式”增强（本质是 AOP/拦截）
+
+- 外观（Facade）
+  - 对外 API（如 `Vue.use`、`app.mount`、`nextTick`）对复杂内部流程提供简化门面
+
+- 模板方法（Template Method）
+  - 组件生命周期钩子在既定流程中开放“步骤扩展点”
+  - 渲染/更新管线固定骨架，平台实现细节由钩子覆盖
+
+- 迭代器（Iterator）
+  - 遍历 VNode/依赖集合/Effect 列表的统一迭代封装（代码层多为抽象遍历函数）
+
+- 依赖注入（DI）
+  - `provide/inject` 在祖先与后代间传递依赖（配置/服务）
+
+- 享元/缓存（Flyweight）
+  - `KeepAlive` 缓存子树、VNode 复用（结合 LRU 策略实现）
+
+- 单例（Singleton）
+  - 全局配置、调度器（scheduler）、全局编译缓存等在运行期多以单例存在
+
+- 命令（Command）（在 Vuex/生态更明显）
+  - `dispatch/commit` 将动作意图与执行解耦（更偏 Flux 架构）
+
+想深入某一条（比如 Dep/Watcher 的依赖收集细节或 Vue3 的 `track/trigger` 触发路径），我可以结合源码关键片段画调用链。
+
+
+发布订阅和观察者有啥区别
+
+观察者是订阅了就一直变化 比如 vue2 的依赖收集，发布订阅是订阅就是订阅，触发就是触发
+
+做通用兼容，我们一个页面可能要兼容赶集和 58 还要兼容小程序，来多端复用
+
+
+wangeditor 的一些机制， 
+
+大型的项目升级迭代
+
+两栋渲染器升级迭代 
+
+1、vue2升级 vue3，解决渲染问题
+2、解决兼容问题 
+3、解决线上已有项目问题 利用后缀来解决问题
+4、更改rem 方案

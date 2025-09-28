@@ -159,3 +159,46 @@ console.log('\n测试用例6：单个区间（mergeIntervals1）')
 const test6_1 = [[1, 2]]
 console.log('输入：', test6_1)
 console.log('输出：', mergeIntervals1(test6_1))
+
+// 重写写一遍多理解
+const mergeIntervals2 = (arr) => {
+  // 这道题咱不是写过吗，区间左右比较然后合并重叠区间
+  // 这是数据结构 [[1, 6], [8, 10], [15, 18]]
+  // 首先要搞个结果啊
+  // const arr = []
+  // // 然后就是遍历了
+  // for (var i = 1; i < arr.length; i++) {
+  //   // 如果第一个数组的右边大于第二个数组的左边
+  //   if (arr[i - 1][1] > arr[i][0]) {
+  //     arr.push([arr[i-1][0]])
+  //   }
+  // }
+  // 之前的思路错了，应该是先弄一个进去，然后,在用外头的跟当前进去的比较，从而确定他的所有区间值
+  // 当然他给的可能是不排序的，所以还得想办法排一下子序
+  // 我们直接浅浅的用 sort 就行，这个是直接改变原数组的
+  arr.sort((a, b) => a[0] - b[0])
+  // 我们先给第 0 个填进去，为了方便比较
+  const res = [arr[0]]
+  for (let i = 1; i < arr.length; i++) {
+    // 找到最后一个，去比较
+    const oldarr = res[res.length - 1]
+    // 如果上一个最后一个小于这个的开始那么说明，他俩压根不在一个区间了
+    if (oldarr[1] < arr[i][0]) {
+      // 这时候就需要 push 了，来解决问题
+      res.push(arr[i])
+    } else {
+      // 这时候就是如果小于了，那就说明什么
+      // 当前的这个区间需要合并了，给重叠的区间合并成一个
+      // oldarr[1] = arr[i][1]
+      // 取一个最大值,为啥呢，因为有可能是包含关系，不是交叉关系
+      oldarr[1] = Math.max(oldarr[1], arr[i][1])
+    }
+  }
+  return res
+}
+mergeIntervals2([
+  [1, 3],
+  [2, 6],
+  [8, 10],
+  [15, 18],
+])

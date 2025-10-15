@@ -71,7 +71,8 @@ Chrome MCP Server 是一个基于chrome插件的 模型上下文协议 (MCP) 服
 1、分析别人页面的功能逻辑实现方案
 2、自动注入脚本检测检测问题
 
-类似的工具还有browser-tools-mcp https://github.com/AgentDeskAI/browser-tools-mcp
+类似的工具还有browser-tools-mcp https://github.com/AgentDeskAI/browser-tools-mcp  
+puppeteer： https://github.com/modelcontextprotocol/servers-archived/tree/main/src/puppeteer
 
 我体验了下基本都差不多
 
@@ -82,4 +83,67 @@ Chrome MCP Server 是一个基于chrome插件的 模型上下文协议 (MCP) 服
 地址 ：https://github.com/modelcontextprotocol/servers/tree/main/src/git
 
 1、可以帮你解决一些复杂的麻烦的回滚等问题，当你有一些分支滚回，合并等问题不行的时候你可以试试用这个 mcp 问 ai
-2、 代码提交直接可以通过ai 对话完成，不用手动操作
+2、 代码提交直接可以通过ai 对话完成，不用手动操作，并且注释都安排的明明白白
+
+
+### Figma-Context-MCP
+
+Figma-Context-MCP 是一个连接 Figma 设计工具与 AI 编程助手（如 Cursor）的桥梁，它能让 AI 直接读取并理解你的设计稿，从而自动生成高还原度的前端代码
+
+地址：https://github.com/GLips/Figma-Context-MCP
+
+
+### playwright-mcp
+Playwright MCP 是一个将 Playwright浏览器自动化框架 与 Model Context Protocol (MCP) 相结合的工具。它就像一座桥梁，让大语言模型（LLM）能够直接理解和操作浏览器，将AI从“思考者”变成了能够亲自动手的“执行者”
+
+地址：https://github.com/microsoft/playwright-mcp
+
+
+### amap-amap-sse
+
+高德地图提供的 MCP (Model Context Protocol) 服务器，主要用于地图相关的服务功能，可以根据这些查询高德的一些 api 生成更精准的代码
+
+
+### sequentialthinking
+sequentialthinking 这个 MCP 是一个专门用于 结构化思考和问题解决 的工具。它的主要作用是帮助用户或 AI 通过 逐步推理 的方式来解决复杂问题。
+
+ 地址：https://github.com/modelcontextprotocol/servers/tree/main/src/sequentialthinking
+
+ 示例：
+
+### Context 7
+
+Context 7 是一个基于 Upstash 的 MCP 服务器，它主要用于 上下文理解和推理 任务。它的主要作用是帮助用户或 AI 系统更好地理解和处理 上下文信息，从而提高任务完成的准确性和效率。
+地址：https://github.com/upstash/context7
+
+总结： 本质上来说 mcp 就是一个给 ai 调用的 api，让他能够获取更多数据和关键词，从而更好的理解用户的需求，生成更精准的代码，
+
+
+
+# ai编程的一些使用技巧
+
+## cursor可以做到的事情
+ 1、干脏活累活，比如帮你提炼代码优化代码
+ 2、让 ai 帮忙设计架构方法，根据他的思路，一步步自己设计
+ 3、让 ai 帮你写 基础的 html css 利用图文生成代码的能力生成基本的结构和框架
+ 4、利用 mcp 让 ai 帮忙检查改动之后在上传
+ 5、利用 ai 排查问题， 复制关键报错信息，让 ai 帮忙解释和理解
+ 6、代码补全
+ 7、整理代码格式以及文件定义
+ 8、方法抽象，代码结构设计,然后再基础上优化
+### 具体使用技巧
+ 1、使用格式化的语言来问问题：技术栈 + 功能要求 + 限制条件 ps：（用vue3 语法做实现父子组件传值，支持 hooks 封装）
+ 2、陌生技术陌生概念直接贴文档让Cursor解释。
+ 3、项目中设置预设关键词，自定义规则，避免生成不符合当前项目的代码
+ 4、使用 ai 修复代码格式和代码的 ts 类型定义
+ 5、错误直接粘贴给 ai 让他帮忙排查问题
+
+ # 古法编程的好处
+
+ 1、 古法编程能学到新知识，避免产生 ai 做出来我就学会的错觉
+ 2、 古法编程让你思路清晰，能够更好的指挥 ai 干活
+ 3、 古法编程的经验越丰富，ai 的使用就越强，他们是正相关的
+ 4、 古法编程可以用于ai 写完后排查问题
+ 5、 古法编程有益于晋升涨薪，因为答案最终要从你嘴里说出来
+   
+ 

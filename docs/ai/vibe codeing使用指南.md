@@ -99,17 +99,13 @@ Playwright MCP 是一个将 Playwright浏览器自动化框架 与 Model Context
 地址：https://github.com/microsoft/playwright-mcp
 
 
-### amap-amap-sse
-
-高德地图提供的 MCP (Model Context Protocol) 服务器，主要用于地图相关的服务功能，可以根据这些查询高德的一些 api 生成更精准的代码
-
 
 ### sequentialthinking
 sequentialthinking 这个 MCP 是一个专门用于 结构化思考和问题解决 的工具。它的主要作用是帮助用户或 AI 通过 逐步推理 的方式来解决复杂问题。
 
  地址：https://github.com/modelcontextprotocol/servers/tree/main/src/sequentialthinking
 
- 示例：
+
 
 ### Context 7
 

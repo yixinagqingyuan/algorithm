@@ -14,3 +14,6 @@ let split // 转换数组
 let join // 转换字符串
 let repleac // 替换
 let padStart // 头部补全
+let repeat // 遍历某一个字符串多少次
+let toUpperCase // 转大写
+let toLowerCase // 转小写
